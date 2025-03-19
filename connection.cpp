@@ -24,6 +24,7 @@
 #include "qearn.h"
 #include "msvault.h"
 #include "testUtils.h"
+#include "qbay.h"
 
 #define DEFAULT_TIMEOUT_MSEC 1000
 
@@ -159,7 +160,7 @@ int QubicConnection::receiveData(uint8_t* buffer, int sz)
         //   rather than waiting for receipt of the full amount requested."
         // Microsoft docs:
         //   "For connection-oriented sockets (type SOCK_STREAM for example), calling recv will
-        //   return as much data as is currently available—up to the size of the buffer specified. [...]
+        //   return as much data as is currently availableï¿½up to the size of the buffer specified. [...]
         //   If no incoming data is available at the socket, the recv call blocks and waits for data to arrive [...]"
         int recvSz = recv(mSocket, (char*)buffer + totalRecvSz, sz, 0);
         if (recvSz <= 0)
@@ -320,6 +321,15 @@ template QEarnGetStatsPerEpoch_output QubicConnection::receivePacketWithHeaderAs
 template QEarnGetEndedStatus_output QubicConnection::receivePacketWithHeaderAs<QEarnGetEndedStatus_output>();
 template QEarnGetBurnedAndBoostedStats_output QubicConnection::receivePacketWithHeaderAs<QEarnGetBurnedAndBoostedStats_output>();
 template QEarnGetBurnedAndBoostedStatsPerEpoch_output QubicConnection::receivePacketWithHeaderAs<QEarnGetBurnedAndBoostedStatsPerEpoch_output>();
+
+// QBAY
+template QBAYGetNumberOfNFTForUser_output QubicConnection::receivePacketWithHeaderAs<QBAYGetNumberOfNFTForUser_output>();
+template QBAYGetInfoOfNFTUserPossessed_output QubicConnection::receivePacketWithHeaderAs<QBAYGetInfoOfNFTUserPossessed_output>();
+template QBAYGetInfoOfMarketplace_output QubicConnection::receivePacketWithHeaderAs<QBAYGetInfoOfMarketplace_output>();
+template QBAYGetInfoOfCollectionByCreator_output QubicConnection::receivePacketWithHeaderAs<QBAYGetInfoOfCollectionByCreator_output>();
+template QBAYGetInfoOfCollectionById_output QubicConnection::receivePacketWithHeaderAs<QBAYGetInfoOfCollectionById_output>();
+template QBAYGetIncomingAuctions_output QubicConnection::receivePacketWithHeaderAs<QBAYGetIncomingAuctions_output>();
+template QBAYGetInfoOfNFTById_output QubicConnection::receivePacketWithHeaderAs<QBAYGetInfoOfNFTById_output>();
 
 template ExchangePublicPeers QubicConnection::receivePacketAs<ExchangePublicPeers>();
 

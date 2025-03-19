@@ -104,3 +104,43 @@ uint8_t g_msVaultVaultName[32] = { 0 };
 char* g_msVaultDestination = nullptr;
 char* g_msVaultPublicId = nullptr;
 char* g_msVaultOwnersCommaSeparated = nullptr;
+
+// qbay
+
+uint64_t g_qbay_cfb_price = 0;
+uint64_t g_qbay_qubic_price = 0;
+uint64_t g_qbay_price_for_drop_mint = 0;
+uint32_t g_qbay_volumn = 0;
+uint32_t g_qbay_royalty = 0;
+uint32_t g_qbay_maxsize_per_one_id = 0;
+bool g_qbay_type_of_collection = 0;
+
+uint32_t g_qbay_collection_id = 0;
+char* g_qbay_uri = nullptr;
+bool g_qbay_type_of_mint = 0;
+char* g_qbay_identity = nullptr;
+uint32_t g_qbay_nft_id = 0;
+uint64_t g_qbay_price = 0;
+bool g_qbay_method_of_payment = 0;
+uint32_t g_qbay_offset;
+uint32_t g_qbay_count;
+
+uint32_t g_qbay_nft_id1 = 0;
+uint32_t g_qbay_nft_id2 = 0;
+uint8_t g_qbay_duration_of_auction = 0;
+uint32_t g_qbay_nft_number = 0;
+
+uint32_t g_qbay_start_year = 24;
+uint32_t g_qbay_start_month = 0;
+uint32_t g_qbay_start_day = 0;
+uint32_t g_qbay_start_hour = 0;
+
+uint32_t g_qbay_end_year = 24;
+uint32_t g_qbay_end_month = 0;
+uint32_t g_qbay_end_day = 0;
+uint32_t g_qbay_end_hour = 0;
+
+char* g_qbay_asset_name = nullptr;
+char* g_qbay_issuer = nullptr;
+long long g_qbay_number_of_share = -1;
+bool g_qbay_status_of_market = 0;

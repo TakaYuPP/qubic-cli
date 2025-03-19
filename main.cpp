@@ -17,6 +17,7 @@
 #include "qvault.h"
 #include "msvault.h"
 #include "testUtils.h"
+#include "qbay.h"
 
 int run(int argc, char* argv[])
 {
@@ -606,6 +607,106 @@ int run(int argc, char* argv[])
             testQpiFunctionsOutput(g_nodeIp, g_nodePort, g_seed, g_offsetScheduledTick);
             break;
         }
+        case QBAY_SETTING_CFB_AND_QUBIC_PRICE:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            settingCFBAndQubicPrice(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_cfb_price, g_qbay_qubic_price);
+            break;
+        case QBAY_CREATE_COLLECTION:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            createCollection(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_price_for_drop_mint, g_qbay_volumn, g_qbay_royalty, g_qbay_maxsize_per_one_id, g_qbay_type_of_collection, g_qbay_uri);
+            break;
+        case QBAY_MINT_NFT:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            mintNFT(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_royalty, g_qbay_collection_id, g_qbay_uri, g_qbay_type_of_mint);
+            break;
+        case QBAY_MINT_OF_DROP:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            mintNFTOfDrop(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_collection_id, g_qbay_price, g_qbay_uri);
+            break;
+        case QBAY_TRANSFER:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            transfer(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_nft_id, g_qbay_identity);
+            break;
+        case QBAY_LIST_IN_MARKET:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            listInMarket(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_price, g_qbay_nft_id);
+            break;
+        case QBAY_SELL:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sell(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_nft_id, g_qbay_method_of_payment);
+            break;
+        case QBAY_CANCEL_SELL:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            cancelSell(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_nft_id);
+            break;
+        case QBAY_LIST_IN_EXCHANGE:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            listInExchange(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_nft_id1, g_qbay_nft_id2);
+            break;
+        case QBAY_CANCEL_EXCHANGE:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            cancelExchange(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_nft_id);
+            break;
+        case QBAY_MAKE_OFFER:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            makeOffer(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_price, g_qbay_nft_id, g_qbay_method_of_payment);
+            break;
+        case QBAY_ACCEPT_OFFER:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            acceptOffer(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_nft_id);
+            break;
+        case QBAY_CANCEL_OFFER:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            cancelOffer(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_nft_id);
+            break;
+        case QBAY_CREATE_TRADITIONAL_AUCTION:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            createTraditoinalAuction(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_price, g_qbay_nft_id, g_qbay_method_of_payment, g_qbay_start_year, g_qbay_start_month, g_qbay_start_day, g_qbay_start_hour, g_qbay_end_year, g_qbay_end_month, g_qbay_end_day, g_qbay_end_hour);
+            break;
+        case QBAY_BID_ON_TRADITIONAL_AUCTION:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            bidOnTraditoinalAuction(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_price, g_qbay_nft_id, g_qbay_method_of_payment);
+            break;
+        case QBAY_GET_NUMBER_OF_NFT_FOR_USER:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            getNumberOfNFTForUser(g_nodeIp, g_nodePort, g_qbay_identity);
+            break;
+        case QBAY_GET_INFO_OF_NFT_USER_POSSESSED:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            getInfoOfNFTUserPossessed(g_nodeIp, g_nodePort, g_qbay_nft_number, g_qbay_identity);
+            break;
+        case QBAY_GET_INFO_OF_MARKETPLACE:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            getInfoOfMarketplace(g_nodeIp, g_nodePort);
+            break;
+        case QBAY_GET_INFO_OF_COLLECTION_BY_CREATOR:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            getInfoOfCollectionByCreator(g_nodeIp, g_nodePort, g_qbay_identity, g_qbay_collection_id);
+            break;
+        case QBAY_GET_INFO_OF_COLLECTION_BY_ID:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            getInfoOfCollectionById(g_nodeIp, g_nodePort, g_qbay_collection_id);
+            break;
+        case QBAY_GET_INCOMMING_AUCTIONS:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            getIncommingAuctions(g_nodeIp, g_nodePort, g_qbay_offset, g_qbay_count);
+            break;
+        case QBAY_GET_INFO_OF_NFT_BY_ID:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            getInfoOfNFTById(g_nodeIp, g_nodePort, g_qbay_nft_id);
+            break;
+        case QBAY_CHANGE_STATUS_OF_MARKET:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            changeStatusOfMarket(g_nodeIp, g_nodePort, g_seed,  g_offsetScheduledTick, g_qbay_status_of_market);
+            break;
+        case QBAY_TRANSFER_SHARE_MANAGAMENT_RIGHTS:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckValidAssetName(g_qbay_asset_name);
+            sanityCheckIdentity(g_qbay_issuer);
+            sanityCheckNumberOfUnit(g_qbay_number_of_share);
+            qbayTransferAssetManagementRights(g_nodeIp, g_nodePort, g_seed, g_qbay_asset_name, g_qbay_issuer, g_contract_index, g_qbay_number_of_share, g_offsetScheduledTick);
+            break;
         default:
             printf("Unexpected command!\n");
             break;

@@ -315,9 +315,13 @@ static uint32_t getContractIndex(const char* str)
         idx = 9;
     else if (strcasecmp(str, "QVAULT") == 0)
         idx = 10;
+    else if (strcasecmp(str, "MSVAULT") == 0)
+        idx = 11;
+    else if (strcasecmp(str, "QBAY") == 0)
+        idx = 12;
     else
     {
-        constexpr uint32_t contractCount = 11;
+        constexpr uint32_t contractCount = 13;
         if (sscanf(str, "%u", &idx) != 1 || idx == 0 || idx >= contractCount)
         {
             LOG("Contract \"%s\" is unknown!\n", str);
@@ -1510,6 +1514,257 @@ void parseArgument(int argc, char** argv)
             i++;
             CHECK_OVER_PARAMETERS
             return;
+        }
+
+        if (strcmp(argv[i], "-qbaysettingcfbandqubicprice") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QBAY_SETTING_CFB_AND_QUBIC_PRICE;
+            g_qbay_cfb_price = charToNumber(argv[i + 1]);
+            g_qbay_qubic_price = charToNumber(argv[i + 2]);
+            i += 3;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaycreatecollection") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(6)
+            g_cmd = QBAY_CREATE_COLLECTION;
+            g_qbay_price_for_drop_mint = charToNumber(argv[i + 1]);
+            g_qbay_volumn = charToNumber(argv[i + 2]);
+            g_qbay_royalty = charToNumber(argv[i + 3]);
+            g_qbay_maxsize_per_one_id = charToNumber(argv[i + 4]);
+            g_qbay_type_of_collection = charToNumber(argv[i + 5]);
+            g_qbay_uri = argv[i + 6];
+            i += 7;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaymintnft") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(4)
+            g_cmd = QBAY_MINT_NFT;
+            g_qbay_royalty = charToNumber(argv[i + 1]);
+            g_qbay_collection_id = charToNumber(argv[i + 2]);
+            g_qbay_uri = argv[i + 3];
+            g_qbay_type_of_mint = charToNumber(argv[i + 4]);
+            i += 5;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaymintofdrop") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QBAY_MINT_OF_DROP;
+            g_qbay_collection_id = charToNumber(argv[i + 1]);
+            g_qbay_price = charToNumber(argv[i + 2]);
+            g_qbay_uri = argv[i + 3];
+            i += 4;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaytransfer") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QBAY_TRANSFER;
+            g_qbay_nft_id = charToNumber(argv[i + 1]);
+            g_qbay_identity = argv[i + 2];
+            i += 3;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaylistinmarket") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QBAY_LIST_IN_MARKET;
+            g_qbay_price = charToNumber(argv[i + 1]);
+            g_qbay_nft_id = charToNumber(argv[i + 2]);
+            i += 3;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaysell") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QBAY_SELL;
+            g_qbay_nft_id = charToNumber(argv[i + 1]);
+            g_qbay_method_of_payment = charToNumber(argv[i + 2]);
+            i += 3;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaycancelsell") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBAY_CANCEL_SELL;
+            g_qbay_nft_id = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaylistinexchange") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QBAY_LIST_IN_EXCHANGE;
+            g_qbay_nft_id1 = charToNumber(argv[i + 1]);
+            g_qbay_nft_id2 = charToNumber(argv[i + 2]);
+            i += 3;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaycancelexchange") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBAY_CANCEL_EXCHANGE;
+            g_qbay_nft_id = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaymakeoffer") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QBAY_MAKE_OFFER;
+            g_qbay_price = charToNumber(argv[i + 1]);
+            g_qbay_nft_id = charToNumber(argv[i + 2]);
+            g_qbay_method_of_payment = charToNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbayacceptoffer") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBAY_ACCEPT_OFFER;
+            g_qbay_nft_id = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaycanceloffer") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBAY_CANCEL_OFFER;
+            g_qbay_nft_id = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaycreatetraditionalauction") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(11)
+            g_cmd = QBAY_CREATE_TRADITIONAL_AUCTION;
+            g_qbay_price = charToNumber(argv[i + 1]);
+            g_qbay_nft_id = charToNumber(argv[i + 2]);
+            g_qbay_method_of_payment = charToNumber(argv[i + 3]);
+            g_qbay_start_year = charToNumber(argv[i + 4]);
+            g_qbay_start_month = charToNumber(argv[i + 5]);
+            g_qbay_start_day = charToNumber(argv[i + 6]);
+            g_qbay_start_hour = charToNumber(argv[i + 7]);
+            g_qbay_end_year = charToNumber(argv[i + 8]);
+            g_qbay_end_month = charToNumber(argv[i + 9]);
+            g_qbay_end_day = charToNumber(argv[i + 10]);
+            g_qbay_end_hour = charToNumber(argv[i + 11]);
+            i += 12;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaybidontraditionalauction") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QBAY_BID_ON_TRADITIONAL_AUCTION;
+            g_qbay_price = charToNumber(argv[i + 1]);
+            g_qbay_nft_id = charToNumber(argv[i + 2]);
+            g_qbay_method_of_payment = charToNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaygetnumberofnftforuser") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBAY_GET_NUMBER_OF_NFT_FOR_USER;
+            g_qbay_identity = argv[i + 1];
+            i += 2;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaygetinfoofnftuserpossessed") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QBAY_GET_INFO_OF_NFT_USER_POSSESSED;
+            g_qbay_nft_number = charToNumber(argv[i + 1]);
+            g_qbay_identity = argv[i + 2];
+            i += 3;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaygetinfoofmarketplace") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(0)
+            g_cmd = QBAY_GET_INFO_OF_MARKETPLACE;
+            i += 1;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaygetinfoofcollectionbycreator") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QBAY_GET_INFO_OF_COLLECTION_BY_CREATOR;
+            g_qbay_identity = argv[i + 1];
+            g_qbay_collection_id = charToNumber(argv[i + 2]);
+            i += 3;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaygetinfoofcollectionbyid") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBAY_GET_INFO_OF_COLLECTION_BY_ID;
+            g_qbay_collection_id = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaygetincommingauctions") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QBAY_GET_INCOMMING_AUCTIONS;
+            g_qbay_offset = charToNumber(argv[i + 1]);
+            g_qbay_count = charToNumber(argv[i + 2]);
+            i += 3;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaygetinfoofnftbyid") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBAY_GET_INFO_OF_NFT_BY_ID;
+            g_qbay_nft_id = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaychangestatusofmarketplace") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBAY_CHANGE_STATUS_OF_MARKET;
+            g_qbay_status_of_market = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qbaytransfermanagementrights") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd =  QBAY_TRANSFER_SHARE_MANAGAMENT_RIGHTS;
+            g_qbay_asset_name = argv[i + 1];
+            g_qbay_issuer = argv[i + 2];
+            g_contract_index = getContractIndex(argv[i + 3]);
+            g_qbay_number_of_share = charToNumber(argv[i + 4]);
+            i += 5;
+            CHECK_OVER_PARAMETERS
+            break;
         }
 
         i++;
