@@ -17,6 +17,7 @@
 #include "qvault.h"
 #include "msvault.h"
 #include "testUtils.h"
+#include "vottunBridge.h"
 
 int run(int argc, char* argv[])
 {
@@ -603,6 +604,90 @@ int run(int argc, char* argv[])
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             msvaultGetVaultOwners(g_nodeIp, g_nodePort, g_msVaultID);
+            break;
+        }
+        case VOTTUNBRIDGE_CREATE_ORDER:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            createOrder(g_nodeIp,g_nodePort,g_seed,g_offsetScheduledTick, g_vottun_Id, g_vottun_amount, g_vottun_flag);
+            break;
+        }
+        case VOTTUNBRIDGE_SET_ADMIN:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            setAdmin(g_nodeIp,g_nodePort,g_seed,g_offsetScheduledTick, g_vottun_Id);
+            break;
+        }
+        case VOTTUNBRIDGE_ADD_MANAGER:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            addManager(g_nodeIp,g_nodePort,g_seed,g_offsetScheduledTick, g_vottun_Id);
+            break;
+        }
+        case VOTTUNBRIDGE_REMOVE_MANAGER:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            removeManager(g_nodeIp,g_nodePort,g_seed,g_offsetScheduledTick, g_vottun_Id);
+            break;
+        }
+        case VOTTUNBRIDGE_COMPLETE_ORDER:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            completeOrder(g_nodeIp,g_nodePort,g_seed,g_offsetScheduledTick,g_vottun_orderId);
+            break;
+        }
+        case VOTTUNBRIDGE_REFUND_ORDER:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            refundOrder(g_nodeIp,g_nodePort,g_seed,g_offsetScheduledTick,g_vottun_orderId);
+            break;
+        }
+        case VOTTUNBRIDGE_TRANSFER_TO_CONTRACT:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            transferToContract(g_nodeIp,g_nodePort,g_seed,g_offsetScheduledTick,g_vottun_amount);
+            break;
+        }
+        case VOTTUNBRIDGE_GET_ORDER:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            getOrder(g_nodeIp,g_nodePort,g_vottun_orderId);
+            break;
+        }
+        case VOTTUNBRIDGE_GET_TOTAL_RECEIVED_TOKEN:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            getTotalReceivedTokens(g_nodeIp,g_nodePort,g_vottun_amount);
+            break;
+        }
+        case VOTTUNBRIDGE_GET_ADMIN_ID:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            getAdminID(g_nodeIp,g_nodePort,g_vottun_idInput);
+            break;
+        }
+        case VOTTUNBRIDGE_GET_TOTAL_LOCKED_TOKEN:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            getTotalLockedTokens(g_nodeIp,g_nodePort);
+            break;
+        }
+        case VOTTUNBRIDGE_GET_ORDER_BY_DETAILS:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            getOrderByDetails(g_nodeIp,g_nodePort,g_vottun_Id,g_vottun_amount,g_vottun_flag);
             break;
         }
         case TEST_QPI_FUNCTIONS_OUTPUT:

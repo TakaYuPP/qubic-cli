@@ -105,3 +105,11 @@ uint8_t g_msVaultVaultName[32] = { 0 };
 char* g_msVaultDestination = nullptr;
 char* g_msVaultPublicId = nullptr;
 char* g_msVaultOwnersCommaSeparated = nullptr;
+
+// vottunBridge
+
+uint64_t g_vottun_orderId = 0;
+char* g_vottun_Id = nullptr;
+uint64_t g_vottun_amount = 0;
+bool g_vottun_flag = 0;
+uint8_t g_vottun_idInput = 0;

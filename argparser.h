@@ -269,6 +269,32 @@ void print_help()
     printf("\t-msvaultgetvaultowners <VAULT_ID>\n");
     printf("\t\tGet MsVault owners given vault ID.\n");
 
+    printf("\n[VOTTUNBRIDGE COMMANDS]\n");
+    printf("\t-vottuncreateorder <ETHER_ADDRESS> <ORDER_ID> <FROM_QUBIC_TO_ETHEREUM>\n");
+    printf("\t\tCreate the order with order infos\n");
+    printf("\t-vottunsetadmin <ADDRESS>\n");
+    printf("\t\tSet the admin with <ADDRESS>\n");
+    printf("\t-vottunaddmanager <ADDRESS>\n");
+    printf("\t\tAdd the manager with <ADDRESS>\n");
+    printf("\t-vottunremovemanager <ADDRESS>\n");
+    printf("\t\tRemove the manager with <ADDRESS>\n");
+    printf("\t-vottuncompleteorder <ORDER_ID>\n");
+    printf("\t\tComplete the order with <ORDER_ID>\n");
+    printf("\t-vottunrefundorder <ORDER_ID>\n");
+    printf("\t\tRefund the order for <ORDER_ID>\n");
+    printf("\t-vottuntransfertocontract <AMOUNT>\n");
+    printf("\t\tTransfer <AMOUNT> to contract \n");
+    printf("\t-vottungetorder <ORDER_ID>\n");
+    printf("\t\tGet order for <ORDER_ID>\n");
+    printf("\t-vottungettotalreceivedtoken <AMOUNT>\n");
+    printf("\t\tGet the total received token.\n");
+    printf("\t-vottungetadminid <ID_INPUT>\n");
+    printf("\t\tGet the admin id from contract\n");
+    printf("\t-vottungettotallockedtokens\n");
+    printf("\t\tGet the toal locked token in contract\n");
+    printf("\t-vottungetorderbydetails <ETHER_ADDRESS> <AMOUNT> <STATUS>\n");
+    printf("\t\tGet the order by details\n");
+
     printf("\n[TESTING COMMANDS]\n");
     printf("\t-testqpifunctionsoutput\n");
     printf("\t\tTest that output of qpi functions matches TickData and quorum tick votes for 15 ticks in the future (as specified by scheduletick offset). Requires the TESTEXA SC to be enabled.\n");
@@ -1508,6 +1534,122 @@ void parseArgument(int argc, char** argv)
             g_cmd = MSVAULT_GET_OWNERS_CMD;
             g_msVaultID = charToNumber(argv[i + 1]);
             i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+
+        /**************************
+         **** VOTTUNBRIDGE COMMANDS ****
+         **************************/
+
+        if (strcmp(argv[i], "-vottuncreateorder") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = VOTTUNBRIDGE_CREATE_ORDER;
+            g_vottun_Id = argv[i + 1];
+            g_vottun_orderId = charToNumber(argv[i + 2]);
+            g_vottun_flag = charToNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottunsetadmin") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_SET_ADMIN;
+            g_vottun_Id = argv[i + 1];
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottunaddmanager") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_ADD_MANAGER;
+            g_vottun_Id = argv[i + 1];
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottunremovemanager") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_REMOVE_MANAGER;
+            g_vottun_Id = argv[i + 1];
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottuncompleteorder") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_COMPLETE_ORDER;
+            g_vottun_orderId = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottunrefundorder") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_REFUND_ORDER;
+            g_vottun_orderId = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottuntransfertocontract") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_TRANSFER_TO_CONTRACT;
+            g_vottun_amount = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottungetorder") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_GET_ORDER;
+            g_vottun_orderId = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottungettotalreceivedtoken") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_GET_TOTAL_RECEIVED_TOKEN;
+            g_vottun_amount = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottungetadminid") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_GET_ADMIN_ID;
+            g_vottun_idInput = (uint8_t)charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottungettotallockedtokens") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(0)
+            g_cmd = VOTTUNBRIDGE_GET_TOTAL_LOCKED_TOKEN;
+            i += 1;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottungetorderbydetails") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = VOTTUNBRIDGE_GET_ORDER_BY_DETAILS;
+            g_vottun_Id = argv[i + 1];
+            g_vottun_amount = charToNumber(argv[i + 2]);
+            g_vottun_flag = charToNumber(argv[i + 3]);
+            i += 4;
             CHECK_OVER_PARAMETERS
             return;
         }

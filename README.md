@@ -248,6 +248,33 @@ Command:
 	-msvaultgetvaultowners <VAULT_ID>
 			Get MsVault owners given vault ID.
 
+[VOTTUNBRIDGE COMMANDS]
+	-vottuncreateorder <ETHER_ADDRESS> <ORDER_ID> <FROM_QUBIC_TO_ETHEREUM>
+			Create the order with order infos
+	-vottunsetadmin <ADDRESS>
+			Set the admin with <ADDRESS>
+	-vottunaddmanager <ADDRESS>
+			Add the manager with <ADDRESS>
+	-vottunremovemanager <ADDRESS>
+			Remove the manager with <ADDRESS>
+	-vottuncompleteorder <ORDER_ID>
+			Complete the order with <ORDER_ID>
+	-vottunrefundorder <ORDER_ID>
+			Refund the order for <ORDER_ID>
+	-vottuntransfertocontract <AMOUNT>
+			Transfer <AMOUNT> to contract 
+	-vottungetorder <ORDER_ID>
+			Get order for <ORDER_ID>
+	-vottungettotalreceivedtoken <AMOUNT>
+			Get the total received token.
+	-vottungetadminid <ID_INPUT>
+			Get the admin id from contract
+	-vottungettotallockedtokens
+			Get the toal locked token in contract
+	-vottungetorderbydetails <ETHER_ADDRESS> <AMOUNT> <STATUS>
+			Get the order by details
+
+
 [TESTING COMMANDS]
 	-testqpifunctionsoutput
 		Test that output of qpi functions matches TickData and quorum tick votes for 15 ticks in the future (as specified by scheduletick offset). Requires the TESTEXA SC to be enabled.
