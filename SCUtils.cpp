@@ -1,13 +1,13 @@
 #include <cstring>
+#include <iostream>
+#include <string>
+
 #include "SCUtils.h"
 #include "keyUtils.h"
 #include "structs.h"
 #include "qxStruct.h"
 #include "connection.h"
 #include "logger.h"
-
-#include <iostream>
-#include <string>
 
 void dumpQxContractToCSV(const char* input, const char* output)
 {
@@ -56,7 +56,7 @@ void dumpQxContractToCSV(const char* input, const char* output)
     uint8_t povID[32];
     char buffer[128];
     char assetNameBuffer[8];
-    for (int64_t elementIdx = 0; elementIdx < qxState->_entityOrders.population(); elementIdx++)
+    for (uint64_t elementIdx = 0; elementIdx < qxState->_entityOrders.population(); elementIdx++)
     {
         if (elementIdx > 0)
         {
@@ -119,5 +119,4 @@ void dumpContractToCSV(const char* input, uint32_t contractId, const char* outpu
         std::cout << "Unsupported contract id: " << contractId << std::endl;
         break;
     }
-
 }

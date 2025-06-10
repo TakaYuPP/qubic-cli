@@ -1,8 +1,11 @@
 #pragma once
-#include "defines.h"
-#include "utils.h"
+
 #include <cstddef>
 #include <cstring>
+
+#include "defines.h"
+#include "utils.h"
+
 enum COMMAND
 {
     SHOW_KEYS = 0,
@@ -24,7 +27,7 @@ enum COMMAND
     QX_ISSUE_ASSET = 16,
     QX_TRANSFER_ASSET = 17,
     GET_NODE_IP_LIST=18,
-    GET_LOG_FROM_NODE = 19,
+    //GET_LOG_FROM_NODE = 19, // moved to qlogging tool
     DUMP_SPECTRUM_FILE = 20,
     DUMP_UNIVERSE_FILE = 21,
     PRINT_QX_FEE =22,
@@ -78,22 +81,62 @@ enum COMMAND
     QEARN_GET_STATE_OF_ROUND = 70,
     QEARN_GET_USER_LOCK_STATUS = 71,
     QEARN_GET_UNLOCKING_STATUS = 72,
+    QVAULT_SUBMIT_AUTH_ADDRESS = 73,
+    QVAULT_CHANGE_AUTH_ADDRESS = 74,
+    QVAULT_SUBMIT_FEES = 75,
+    QVAULT_CHANGE_FEES = 76,
+    QVAULT_SUBMIT_REINVESTING_ADDRESS = 77,
+    QVAULT_CHANGE_REINVESTING_ADDRESS = 78,
+    QVAULT_GET_DATA = 79,
+    QVAULT_SUBMIT_ADMIN_ADDRESS = 80,
+    QVAULT_CHANGE_ADMIN_ADDRESS = 81,
+    QVAULT_SUBMIT_BANNED_ADDRESS = 82,
+    QVAULT_SAVE_BANNED_ADDRESS = 83,
+    QVAULT_SUBMIT_UNBANNED_ADDRESS = 84,
+    QVAULT_SAVE_UNBANNED_ADDRESS = 85,
+    QEARN_GET_STATS_PER_EPOCH = 86,
+    QEARN_GET_BURNED_AND_BOOSTED_STATS = 87,
+    QEARN_GET_BURNED_AND_BOOSTED_STATS_PER_EPOCH = 88,
+    QX_TRANSFER_MANAGEMENT_RIGHTS = 89,
+    QUTIL_SEND_TO_MANY_BENCHMARK = 90,
+    MSVAULT_REGISTER_VAULT_CMD = 91,
+    MSVAULT_DEPOSIT_CMD = 92,
+    MSVAULT_RELEASE_TO_CMD = 93,
+    MSVAULT_RESET_RELEASE_CMD = 94,
+    MSVAULT_GET_VAULTS_CMD = 95,
+    MSVAULT_GET_RELEASE_STATUS_CMD = 96,
+    MSVAULT_GET_BALANCE_OF_CMD = 97,
+    MSVAULT_GET_VAULT_NAME_CMD = 98,
+    MSVAULT_GET_REVENUE_INFO_CMD = 99,
+    MSVAULT_GET_FEES_CMD = 100,
+    MSVAULT_GET_OWNERS_CMD = 101,
+    QUERY_ASSETS = 102,
+    TEST_QPI_FUNCTIONS_OUTPUT = 103,
+    SET_LOGGING_MODE = 104,
+    TEST_QPI_FUNCTIONS_OUTPUT_PAST = 105,
+    COMP_CHAT = 106,
+    TEST_GET_INCOMING_TRANSFER_AMOUNTS = 107,
+    TEST_BID_IN_IPO_THROUGH_CONTRACT = 108,
+    GET_TOTAL_NUMBER_OF_ASSET_SHARES = 109,
     TOTAL_COMMAND, // DO NOT CHANGE THIS
 };
 
-struct RequestResponseHeader {
+struct RequestResponseHeader 
+{
 private:
     uint8_t _size[3];
     uint8_t _type;
     unsigned int _dejavu;
 
 public:
-    inline unsigned int size() {
+    inline unsigned int size()
+    {
         if (((*((unsigned int*)_size)) & 0xFFFFFF)==0) return INT32_MAX; // size is never zero, zero means broken packets
         return (*((unsigned int*)_size)) & 0xFFFFFF;
     }
 
-    inline void setSize(unsigned int size) {
+    inline void setSize(unsigned int size)
+    {
         _size[0] = (uint8_t)size;
         _size[1] = (uint8_t)(size >> 8);
         _size[2] = (uint8_t)(size >> 16);
@@ -128,6 +171,7 @@ public:
         _type = type;
     }
 };
+
 typedef struct
 {
     unsigned char publicKey[32];
@@ -147,8 +191,11 @@ struct Tick
     unsigned char month;
     unsigned char year;
 
-    unsigned long long prevResourceTestingDigest;
-    unsigned long long saltedResourceTestingDigest;
+    unsigned int prevResourceTestingDigest;
+    unsigned int saltedResourceTestingDigest;
+
+    unsigned int prevTransactionBodyDigest;
+    unsigned int saltedTransactionBodyDigest;
 
     uint8_t prevSpectrumDigest[32];
     uint8_t prevUniverseDigest[32];
@@ -174,6 +221,7 @@ struct Entity
     unsigned int numberOfIncomingTransfers, numberOfOutgoingTransfers;
     unsigned int latestIncomingTransferTick, latestOutgoingTransferTick;
 };
+
 typedef struct
 {
     Entity entity;
@@ -192,7 +240,7 @@ typedef struct
     unsigned short inputSize;
 } Transaction;
 
-typedef struct
+struct CurrentTickInfo
 {
     unsigned short tickDuration;
     unsigned short epoch;
@@ -200,10 +248,15 @@ typedef struct
     unsigned short numberOfAlignedVotes;
     unsigned short numberOfMisalignedVotes;
     unsigned int initialTick;
-} CurrentTickInfo;
+
+    static constexpr unsigned char type()
+    {
+        return RESPOND_CURRENT_TICK_INFO;
+    }
+};
 
 #pragma pack(push, 1)
-typedef struct
+struct CurrentSystemInfo
 {
     short version;
     unsigned short epoch;
@@ -230,10 +283,22 @@ typedef struct
     // Entity balances less or euqal this value will be burned if number of entites rises to 75% of spectrum capacity.
     // Starts to be meaningful if >50% of spectrum is filled but may still change after that.
     unsigned long long currentEntityBalanceDustThreshold;
-} CurrentSystemInfo;
+
+    unsigned int targetTickVoteSignature;
+    unsigned long long _reserve0;
+    unsigned long long _reserve1;
+    unsigned long long _reserve2;
+    unsigned long long _reserve3;
+    unsigned long long _reserve4;
+
+    static constexpr unsigned char type()
+    {
+        return RESPOND_SYSTEM_INFO;
+    }
+};
 #pragma pack(pop)
 
-typedef struct
+struct TickData
 {
     unsigned short computorIndex;
     unsigned short epoch;
@@ -252,7 +317,13 @@ typedef struct
     long long contractFees[1024];
 
     unsigned char signature[SIGNATURE_SIZE];
-} TickData;
+
+    static constexpr unsigned char type()
+    {
+        return BROADCAST_FUTURE_TICK_DATA;
+    }
+};
+
 typedef struct
 {
     unsigned int tick;
@@ -290,14 +361,17 @@ typedef struct
 {
     uint8_t sig[SIGNATURE_SIZE];
 } SignatureStruct;
+
 typedef struct
 {
     char hash[60];
 } TxhashStruct;
+
 typedef struct
 {
     uint8_t ptr[32];
 } TxHash32Struct;
+
 typedef struct
 {
     std::vector<uint8_t> vecU8;
@@ -317,7 +391,7 @@ struct SpecialCommand
 #define OWNERSHIP 2
 #define POSSESSION 3
 
-struct Asset
+struct AssetRecord
 {
     union
     {
@@ -337,7 +411,7 @@ struct Asset
             char padding[1];
             unsigned short managingContractIndex;
             unsigned int issuanceIndex;
-            long long numberOfUnits;
+            long long numberOfShares;
         } ownership;
 
         struct
@@ -347,7 +421,7 @@ struct Asset
             char padding[1];
             unsigned short managingContractIndex;
             unsigned int ownershipIndex;
-            long long numberOfUnits;
+            long long numberOfShares;
         } possession;
     } varStruct;
 };
@@ -359,7 +433,7 @@ typedef struct
 
 typedef struct
 {
-    Asset asset;
+    AssetRecord asset;
     unsigned int tick;
     unsigned int universeIndex;
     unsigned char siblings[ASSETS_DEPTH][32];
@@ -370,29 +444,121 @@ typedef struct
     unsigned char publicKey[32];
 } RequestOwnedAssets;
 
-typedef struct
+struct RespondOwnedAssets
 {
-    Asset asset;
-    Asset issuanceAsset;
+    AssetRecord asset;
+    AssetRecord issuanceAsset;
     unsigned int tick;
     unsigned int universeIndex;
     unsigned char siblings[ASSETS_DEPTH][32];
-} RespondOwnedAssets;
+
+    static constexpr unsigned char type()
+    {
+        return RESPOND_OWNED_ASSETS;
+    }
+};
 
 typedef struct
 {
     unsigned char publicKey[32];
 } RequestPossessedAssets;
 
-typedef struct
+struct RespondPossessedAssets
 {
-    Asset asset;
-    Asset ownershipAsset;
-    Asset issuanceAsset;
+    AssetRecord asset;
+    AssetRecord ownershipAsset;
+    AssetRecord issuanceAsset;
     unsigned int tick;
     unsigned int universeIndex;
     unsigned char siblings[ASSETS_DEPTH][32];
-} RespondPossessedAssets;
+
+    static constexpr unsigned char type()
+    {
+        return RESPOND_POSSESSED_ASSETS;
+    }
+};
+
+
+// Options to request assets:
+// - all issued asset records, optionally with filtering by issuer and/or name
+// - all ownership records of a specific asset type, optionally with filtering by owner and managing contract
+// - all possession records of a specific asset type, optionally with filtering by possessor and managing contract
+// - by universeIdx (set issuer and asset name to 0)
+union RequestAssets
+{
+    static constexpr unsigned char type()
+    {
+        return 52;
+    }
+
+    // type of asset request
+    static constexpr unsigned short requestIssuanceRecords = 0;
+    static constexpr unsigned short requestOwnershipRecords = 1;
+    static constexpr unsigned short requestPossessionRecords = 2;
+    static constexpr unsigned short requestByUniverseIdx = 3;
+    unsigned short assetReqType;
+
+    // common flags
+    static constexpr unsigned short getSiblings = 0b1;
+
+    // flags of requestIssuanceRecords
+    static constexpr unsigned short anyIssuer = 0b10;
+    static constexpr unsigned short anyAssetName = 0b100;
+
+    // flags of requestOwnershipRecords
+    static constexpr unsigned short anyOwner = 0b1000;
+    static constexpr unsigned short anyOwnershipManagingContract = 0b10000;
+
+    // flags of requestOwnershipRecords and requestPossessionRecords
+    static constexpr unsigned short anyPossessor = 0b100000;
+    static constexpr unsigned short anyPossessionManagingContract = 0b1000000;
+
+    // data of type requestIssuanceRecords, requestOwnershipRecords, and requestPossessionRecords
+    struct
+    {
+        unsigned short assetReqType;
+        unsigned short flags;
+        unsigned short ownershipManagingContract;
+        unsigned short possessionManagingContract;
+        unsigned char issuer[32];
+        unsigned long long assetName;
+        unsigned char owner[32];
+        unsigned char possessor[32];
+    } byFilter;
+
+    // data of type requestByUniverseIdx
+    struct
+    {
+        unsigned short assetReqType;
+        unsigned short flags;
+        unsigned int universeIdx;
+    } byUniverseIdx;
+};
+
+static_assert(sizeof(RequestAssets) == 112, "Something is wrong with the struct size.");
+
+
+// Response message after RequestAssets without flag getSiblings
+struct RespondAssets
+{
+    AssetRecord asset;
+    unsigned int tick;
+    unsigned int universeIndex;
+
+    static constexpr unsigned char type()
+    {
+        return 53;
+    }
+};
+static_assert(sizeof(RespondAssets) == 56, "Something is wrong with the struct size.");
+
+// Response message after RequestAssets with flag getSiblings
+struct RespondAssetsWithSiblings : public RespondAssets
+{
+    unsigned char siblings[ASSETS_DEPTH][32];
+};
+static_assert(sizeof(RespondAssetsWithSiblings) == 824, "Something is wrong with the struct size.");
+
 
 typedef struct
 {
@@ -402,15 +568,33 @@ typedef struct
     unsigned char signature[SIGNATURE_SIZE];
 } Computors;
 
-typedef struct
+struct BroadcastComputors
 {
     Computors computors;
-} BroadcastComputors;
 
-typedef struct
+    static constexpr unsigned char type()
+    {
+        return BROADCAST_COMPUTORS;
+    }
+};
+
+struct ExchangePublicPeers
 {
     unsigned char peers[4][4];
-} ExchangePublicPeers;
+
+    static constexpr unsigned char type()
+    {
+        return EXCHANGE_PUBLIC_PEERS;
+    }
+};
+
+struct RequestComputors
+{
+    static constexpr unsigned char type()
+    {
+        return REQUEST_COMPUTORS;
+    }
+};
 
 struct RequestLog // Fetches log
 {
@@ -460,6 +644,11 @@ struct QxFees_output
     uint32_t assetIssuanceFee; // Amount of qus
     uint32_t transferFee; // Amount of qus
     uint32_t tradeFee; // Number of billionths
+
+    static constexpr unsigned char type()
+    {
+        return RespondContractFunction::type();
+    }    
 };
 struct GetSendToManyV1Fee_output
 {
@@ -483,13 +672,18 @@ typedef struct
 
 #define RESPOND_CONTRACT_IPO 34
 
-typedef struct
+struct RespondContractIPO
 {
     unsigned int contractIndex;
     unsigned int tick;
     uint8_t publicKeys[NUMBER_OF_COMPUTORS][32];
     long long prices[NUMBER_OF_COMPUTORS];
-} RespondContractIPO;
+
+    static constexpr unsigned char type()
+    {
+        return RESPOND_CONTRACT_IPO;
+    }
+};
 
 struct SpecialCommandToggleMainModeResquestAndResponse
 {
@@ -552,6 +746,18 @@ struct SpecialCommandGetMiningScoreRanking
 };
 #pragma pack(pop)
 
+struct SpecialCommandSetConsoleLoggingModeRequestAndResponse
+{
+    unsigned long long everIncreasingNonceAndCommandType;
+    unsigned char loggingMode; // 0 disabled, 1 low computational cost, 2 full logging
+    unsigned char padding[7];
+
+    static constexpr unsigned char type()
+    {
+        return 255;
+    }
+};
+
 #define REQUEST_TX_STATUS 201
 
 struct RequestTxStatus
@@ -578,6 +784,11 @@ struct RespondTxStatus
     unsigned int size() const
     {
         return offsetof(RespondTxStatus, txDigests) + txCount * 32;
+    }
+
+    static constexpr unsigned char type()
+    {
+        return RESPOND_TX_STATUS;
     }
 };
 #pragma pack(pop)

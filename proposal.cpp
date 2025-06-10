@@ -1,14 +1,13 @@
+#include <iostream>
+#include <algorithm>
+#include <cctype>
+
 #include "proposal.h"
 #include "walletUtils.h"
 #include "keyUtils.h"
 #include "sanityCheck.h"
 #include "commonFunctions.h"
-
-#include <iostream>
-#include <cstring>
-#include <algorithm>
-#include <cctype>
-#include <string>
+#include "utils.h"
 
 #define GQMPROP_CONTRACT_INDEX 6
 
@@ -35,7 +34,6 @@
 #define CCF_PROC_VOTE 2
 
 
-
 void toLower(std::string& data)
 {
 	std::transform(data.begin(), data.end(), data.begin(), [](unsigned char c) { return std::tolower(c); });
@@ -51,7 +49,6 @@ void convertProposalDataToV1(const ProposalDataYesNo& pyn, ProposalDataV1& pv1)
 	memcpy(&pv1, &pyn, sizeof(pyn));
 	memset(((char*)&pv1) + sizeof(pyn), 0, sizeof(pv1) - sizeof(pyn));
 }
-
 
 bool printAndCheckProposal(const ProposalDataV1& p, int contract, const uint8_t* proposerPublicKey = nullptr, int proposalIndex = -1)
 {
@@ -274,7 +271,6 @@ void printVotingResults(ProposalSummarizedVotingDataV1& results, bool quorumRule
 	}
 }
 
-
 void printSetProposalHelp()
 {
 	std::cout << "\nYou have to pass a proposal string with the following structure:\n\n";
@@ -290,11 +286,12 @@ void printSetProposalHelp()
 	std::cout << std::endl;
 }
 
-std::string strtok2string(char* s, const char* delimiter)
-{
-	const char* res = strtok(s, delimiter);
-	return (res) ? res : "";
-}
+#ifdef _MSC_VER
+#define STRDUP(x) _strdup(x)
+#else
+#define STRDUP(x) strdup(x)
+#endif
+
 
 bool parseProposalString(const char* proposalString, ProposalDataV1& p)
 {
@@ -307,12 +304,12 @@ bool parseProposalString(const char* proposalString, ProposalDataV1& p)
 	std::cout << "Parsing proposal string \"" << proposalString << "\" ..." << std::endl;
 
 	// split proposal string in main parts
-	char* writableProposalString = strdup(proposalString);
+	char* writableProposalString = STRDUP(proposalString);
 	std::string typeClassStr = strtok2string(writableProposalString, "|");
 	std::string proposalDataStr = strtok2string(NULL, "|");
 	std::string url = strtok2string(NULL, "|");
 	free(writableProposalString);
-	writableProposalString = strdup(proposalDataStr.c_str());
+	writableProposalString = STRDUP(proposalDataStr.c_str());
 	std::string numberOptionStr = strtok2string(writableProposalString, ":");
 	proposalDataStr = strtok2string(NULL, ":");
 	free(writableProposalString);
@@ -366,7 +363,7 @@ bool parseProposalString(const char* proposalString, ProposalDataV1& p)
 	else if (typeClass == ProposalTypes::Class::Transfer)
 	{
 		// split proposal string in main parts
-		writableProposalString = strdup(proposalDataStr.c_str());
+		writableProposalString = STRDUP(proposalDataStr.c_str());
 		std::string dstIdentity = strtok2string(writableProposalString, ",");
 		std::cout << "Checking destination identity " << dstIdentity << " ...\n";
 		sanityCheckIdentity(dstIdentity.c_str());
@@ -503,7 +500,8 @@ bool getProposalIndices(const char* nodeIp, int nodePort,
 		
 		if (output.numOfIndices > 0)
 			input.prevProposalIndex = output.indices[output.numOfIndices - 1];
-	} while (output.numOfIndices == 64);
+	} 
+	while (output.numOfIndices == 64);
 
 	return true;
 }
@@ -754,7 +752,7 @@ void castVote(const char* nodeIp, int nodePort, const char* seed,
 		std::cout << voteValue << "\n";
 
 	std::cout << "\nSending vote (you need to be computor to do so) ..." << std::endl;
-	makeContractTransaction(nodeIp, nodePort, seed, contractIdx, castVoteInputType, 0, sizeof(v), (uint8_t*)&v, scheduledTickOffset);
+	makeContractTransaction(nodeIp, nodePort, seed, contractIdx, castVoteInputType, 0, sizeof(v), &v, scheduledTickOffset);
 }
 
 void gqmpropSetProposal(const char* nodeIp, int nodePort, const char* seed,
@@ -778,7 +776,7 @@ void gqmpropSetProposal(const char* nodeIp, int nodePort, const char* seed,
 	std::cout << "\nSending transaction to set your general quorum proposal (you need to be computor to do so)..." << std::endl;
 	makeContractTransaction(nodeIp, nodePort, seed,
 		GQMPROP_CONTRACT_INDEX, GQMPROP_PROC_SET_PROPOSAL, 0,
-		sizeof(p), (uint8_t*)&p, scheduledTickOffset);
+		sizeof(p), &p, scheduledTickOffset);
 }
 
 void gqmpropClearProposal(const char* nodeIp, int nodePort, const char* seed,
@@ -790,7 +788,7 @@ void gqmpropClearProposal(const char* nodeIp, int nodePort, const char* seed,
 	p.epoch = 0;	// epoch 0 clears proposal
 	makeContractTransaction(nodeIp, nodePort, seed,
 		GQMPROP_CONTRACT_INDEX, GQMPROP_PROC_SET_PROPOSAL, 0,
-		sizeof(p), (uint8_t*)&p, scheduledTickOffset);
+		sizeof(p), &p, scheduledTickOffset);
 }
 
 void gqmpropGetProposals(const char* nodeIp, int nodePort, const char* proposalIndexString)
@@ -905,7 +903,7 @@ void ccfSetProposal(const char* nodeIp, int nodePort, const char* seed,
 	std::cout << "\nSending transaction to set your CCF proposal ..." << std::endl;
 	makeContractTransaction(nodeIp, nodePort, seed,
 		CCF_CONTRACT_INDEX, CCF_PROC_SET_PROPOSAL, fee,
-		sizeof(pyn), (uint8_t*)&pyn, scheduledTickOffset);
+		sizeof(pyn), &pyn, scheduledTickOffset);
 }
 
 void ccfClearProposal(const char* nodeIp, int nodePort, const char* seed,
@@ -920,7 +918,7 @@ void ccfClearProposal(const char* nodeIp, int nodePort, const char* seed,
 	p.epoch = 0;	// epoch 0 clears proposal
 	makeContractTransaction(nodeIp, nodePort, seed,
 		CCF_CONTRACT_INDEX, CCF_PROC_SET_PROPOSAL, fee,
-		sizeof(p), (uint8_t*)&p, scheduledTickOffset);
+		sizeof(p), &p, scheduledTickOffset);
 }
 
 void ccfGetProposals(const char* nodeIp, int nodePort, const char* proposalIndexString)
