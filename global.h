@@ -113,3 +113,5 @@ char* g_vottun_Id = nullptr;
 uint64_t g_vottun_amount = 0;
 bool g_vottun_flag = 0;
 uint8_t g_vottun_idInput = 0;
+char* g_vottun_qubicDestination = nullptr;
+char* g_vottun_ethAddress = nullptr;

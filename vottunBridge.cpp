@@ -21,6 +21,8 @@
 #define VOTTUNBRIDGE_TYPE_GET_ADMIN_ID 5
 #define VOTTUNBRIDGE_TYPE_GET_TOTAL_LOCKED_TOKEN 6
 #define VOTTUNBRIDGE_TYPE_GET_ORDER_BY_DETAILS 7
+#define VOTTUNBRIDGE_TYPE_GET_CONTRACT_INFO 8
+#define VOTTUNBRIDGE_TYPE_GET_AVAILABLE_FEES 9
 
 // VOTTUNBRIDGE PROCEDURES
 
@@ -31,12 +33,15 @@
 #define VOTTUNBRIDGE_TYPE_COMPLETE_ORDER 5
 #define VOTTUNBRIDGE_TYPE_REFUND_ORDER 6
 #define VOTTUNBRIDGE_TYPE_TRANSFER_TO_CONTRACT 7
+#define VOTTUNBRIDGE_TYPE_ADD_LIQUIDITY 8
+#define VOTTUNBRIDGE_TYPE_WITHDRAW_FEES 9
 
 constexpr uint64_t TRANSACTION_FEE = 1000;
 
 struct createOrder_input
 {
-    uint8_t ethAddress[32];
+    uint8_t qubicDestination[32];
+    uint8_t ethAddress[64];
     uint64_t amount;
     bool fromQubicToEthereum;
 };
@@ -44,6 +49,7 @@ struct createOrder_input
 struct createOrder_output
 {
     uint8_t status;
+    uint64_t orderId;
 };
 
 struct setAdmin_input
@@ -99,6 +105,7 @@ struct refundOrder_output
 struct transferToContract_input
 {
     uint64_t amount;
+    uint64_t orderId;
 };
 
 struct transferToContract_output
@@ -106,12 +113,33 @@ struct transferToContract_output
     uint8_t status;
 };
 
-void createOrder(const char* nodeIp, int nodePort, const char* seed, uint32_t scheduledTickOffset, const char* ethAddress, uint64_t amount, bool fromQubicToEthereum)
+struct withdrawFees_input
+{
+    uint64_t amount;
+};
+
+struct withdrawFees_output
+{
+    uint8_t status;
+};
+
+struct addLiquidity_input
+{
+};
+
+struct addLiquidity_output
+{
+    uint8_t status;
+    uint64_t addedAmount;
+    uint64_t totalLocked;
+};
+
+void createOrder(const char* nodeIp, int nodePort, const char* seed, uint32_t scheduledTickOffset, const char* qubicDestination, const char* ethAddress, uint64_t amount, bool fromQubicToEthereum)
 {
     auto qc = make_qc(nodeIp, nodePort);
 
     uint8_t publicKey[32] = {0};
-    getPublicKeyFromIdentity(ethAddress, publicKey);
+    getPublicKeyFromIdentity(qubicDestination, publicKey);
 
     uint8_t privateKey[32] = {0};
     uint8_t sourcePublicKey[32] = {0};  
@@ -131,18 +159,21 @@ void createOrder(const char* nodeIp, int nodePort, const char* seed, uint32_t sc
     ((uint64_t*)destPublicKey)[2] = 0;
     ((uint64_t*)destPublicKey)[3] = 0;
 
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         Transaction transaction;
         createOrder_input input;
         unsigned char signature[64];
     } packet;
+    #pragma pack(pop)
 
-    memcpy(packet.input.ethAddress, publicKey, 32);
+    memcpy(packet.input.qubicDestination, publicKey, 32);
+    memcpy(packet.input.ethAddress, ethAddress, 64);
     packet.input.amount = amount;
     packet.input.fromQubicToEthereum = fromQubicToEthereum;
 
-    packet.transaction.amount = TRANSACTION_FEE;
+    packet.transaction.amount = amount / 100;
     memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
     memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
     uint32_t currentTick = getTickNumberFromNode(qc);
@@ -195,12 +226,14 @@ void setAdmin(const char* nodeIp, int nodePort, const char* seed, uint32_t sched
     ((uint64_t*)destPublicKey)[2] = 0;
     ((uint64_t*)destPublicKey)[3] = 0;
 
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         Transaction transaction;
         setAdmin_input input;
         unsigned char signature[64];
     } packet;
+    #pragma pack(pop)
 
     memcpy(packet.input.address, publicKey, 32);
 
@@ -257,12 +290,14 @@ void addManager(const char* nodeIp, int nodePort, const char* seed, uint32_t sch
     ((uint64_t*)destPublicKey)[2] = 0;
     ((uint64_t*)destPublicKey)[3] = 0;
 
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         Transaction transaction;
         addManager_input input;
         unsigned char signature[64];
     } packet;
+    #pragma pack(pop)
 
     memcpy(packet.input.address, publicKey, 32);
 
@@ -319,12 +354,14 @@ void removeManager(const char* nodeIp, int nodePort, const char* seed, uint32_t 
     ((uint64_t*)destPublicKey)[2] = 0;
     ((uint64_t*)destPublicKey)[3] = 0;
 
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         Transaction transaction;
         removeManager_input input;
         unsigned char signature[64];
     } packet;
+    #pragma pack(pop)
 
     memcpy(packet.input.address, publicKey, 32);
 
@@ -378,12 +415,14 @@ void completeOrder(const char* nodeIp, int nodePort, const char* seed, uint32_t 
     ((uint64_t*)destPublicKey)[2] = 0;
     ((uint64_t*)destPublicKey)[3] = 0;
 
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         Transaction transaction;
         completeOrder_input input;
         unsigned char signature[64];
     } packet;
+    #pragma pack(pop)
 
     packet.input.orderId = orderId;
 
@@ -437,12 +476,14 @@ void refundOrder(const char* nodeIp, int nodePort, const char* seed, uint32_t sc
     ((uint64_t*)destPublicKey)[2] = 0;
     ((uint64_t*)destPublicKey)[3] = 0;
 
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         Transaction transaction;
         refundOrder_input input;
         unsigned char signature[64];
     } packet;
+    #pragma pack(pop)
 
     packet.input.orderId = orderId;
 
@@ -474,7 +515,7 @@ void refundOrder(const char* nodeIp, int nodePort, const char* seed, uint32_t sc
     LOG("to check your tx confirmation status\n");
 }
 
-void transferToContract(const char* nodeIp, int nodePort, const char* seed, uint32_t scheduledTickOffset, uint64_t amount)
+void transferToContract(const char* nodeIp, int nodePort, const char* seed, uint32_t scheduledTickOffset, uint64_t amount, uint64_t orderId)
 {
     auto qc = make_qc(nodeIp, nodePort);
 
@@ -496,14 +537,17 @@ void transferToContract(const char* nodeIp, int nodePort, const char* seed, uint
     ((uint64_t*)destPublicKey)[2] = 0;
     ((uint64_t*)destPublicKey)[3] = 0;
 
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         Transaction transaction;
         transferToContract_input input;
         unsigned char signature[64];
     } packet;
+    #pragma pack(pop)
 
     packet.input.amount = amount;
+    packet.input.orderId = orderId;
 
     packet.transaction.amount = amount;
     memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
@@ -533,15 +577,137 @@ void transferToContract(const char* nodeIp, int nodePort, const char* seed, uint
     LOG("to check your tx confirmation status\n");
 }
 
+void addLiquidity(const char* nodeIp, int nodePort, const char* seed, uint32_t scheduledTickOffset, uint64_t amount)
+{
+    auto qc = make_qc(nodeIp, nodePort);
+
+    uint8_t privateKey[32] = {0};
+    uint8_t sourcePublicKey[32] = {0};  
+    uint8_t destPublicKey[32] = {0};
+    uint8_t subseed[32] = {0};
+    uint8_t digest[32] = {0};
+    uint8_t signature[64] = {0};
+    char publicIdentity[128] = {0};
+    char txHash[128] = {0};
+    getSubseedFromSeed((uint8_t*)seed, subseed);
+    getPrivateKeyFromSubSeed(subseed, privateKey);
+    getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
+    const bool isLowerCase = false;
+    getIdentityFromPublicKey(sourcePublicKey, publicIdentity, isLowerCase);
+    ((uint64_t*)destPublicKey)[0] = VOTTUNBRIDGE_CONTRACT_INDEX;
+    ((uint64_t*)destPublicKey)[1] = 0;
+    ((uint64_t*)destPublicKey)[2] = 0;
+    ((uint64_t*)destPublicKey)[3] = 0;
+
+    #pragma pack(push, 1)
+    struct {
+        RequestResponseHeader header;
+        Transaction transaction;
+        addLiquidity_input input;
+        unsigned char signature[64];
+    } packet;
+    #pragma pack(pop)
+
+    packet.transaction.amount = amount;
+    memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
+    memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
+    uint32_t currentTick = getTickNumberFromNode(qc);
+    packet.transaction.tick = currentTick + scheduledTickOffset;
+    packet.transaction.inputType = VOTTUNBRIDGE_TYPE_ADD_LIQUIDITY;
+    packet.transaction.inputSize = sizeof(addLiquidity_input);
+    KangarooTwelve((unsigned char*)&packet.transaction,
+                   sizeof(packet.transaction) + sizeof(addLiquidity_input),
+                   digest,
+                   32);
+    sign(subseed, sourcePublicKey, digest, signature);
+    memcpy(packet.signature, signature, 64);
+    packet.header.setSize(sizeof(packet));
+    packet.header.zeroDejavu();
+    packet.header.setType(BROADCAST_TRANSACTION);
+    qc->sendData((uint8_t *) &packet, packet.header.size());
+    KangarooTwelve((unsigned char*)&packet.transaction,
+                   sizeof(packet.transaction) + sizeof(addLiquidity_input) + SIGNATURE_SIZE,
+                   digest,
+                   32); // recompute digest for txhash
+    getTxHashFromDigest(digest, txHash);
+    LOG("addLiquidity tx has been sent!\n");
+    printReceipt(packet.transaction, txHash, nullptr);
+    LOG("run ./qubic-cli [...] -checktxontick %u %s\n", currentTick + scheduledTickOffset, txHash);
+    LOG("to check your tx confirmation status\n");
+}
+
+void withdrawFees(const char* nodeIp, int nodePort, const char* seed, uint32_t scheduledTickOffset, uint64_t amount)
+{
+    auto qc = make_qc(nodeIp, nodePort);
+
+    uint8_t privateKey[32] = {0};
+    uint8_t sourcePublicKey[32] = {0};  
+    uint8_t destPublicKey[32] = {0};
+    uint8_t subseed[32] = {0};
+    uint8_t digest[32] = {0};
+    uint8_t signature[64] = {0};
+    char publicIdentity[128] = {0};
+    char txHash[128] = {0};
+    getSubseedFromSeed((uint8_t*)seed, subseed);
+    getPrivateKeyFromSubSeed(subseed, privateKey);
+    getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
+    const bool isLowerCase = false;
+    getIdentityFromPublicKey(sourcePublicKey, publicIdentity, isLowerCase);
+    ((uint64_t*)destPublicKey)[0] = VOTTUNBRIDGE_CONTRACT_INDEX;
+    ((uint64_t*)destPublicKey)[1] = 0;
+    ((uint64_t*)destPublicKey)[2] = 0;
+    ((uint64_t*)destPublicKey)[3] = 0;
+
+    #pragma pack(push, 1)
+    struct {
+        RequestResponseHeader header;
+        Transaction transaction;
+        withdrawFees_input input;
+        unsigned char signature[64];
+    } packet;
+    #pragma pack(pop)
+
+    packet.input.amount = amount;
+    packet.transaction.amount = 0;
+    memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
+    memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
+    uint32_t currentTick = getTickNumberFromNode(qc);
+    packet.transaction.tick = currentTick + scheduledTickOffset;
+    packet.transaction.inputType = VOTTUNBRIDGE_TYPE_WITHDRAW_FEES;
+    packet.transaction.inputSize = sizeof(withdrawFees_input);
+    KangarooTwelve((unsigned char*)&packet.transaction,
+                   sizeof(packet.transaction) + sizeof(withdrawFees_input),
+                   digest,
+                   32);
+    sign(subseed, sourcePublicKey, digest, signature);
+    memcpy(packet.signature, signature, 64);
+    packet.header.setSize(sizeof(packet));
+    packet.header.zeroDejavu();
+    packet.header.setType(BROADCAST_TRANSACTION);
+    qc->sendData((uint8_t *) &packet, packet.header.size());
+    KangarooTwelve((unsigned char*)&packet.transaction,
+                   sizeof(packet.transaction) + sizeof(withdrawFees_input) + SIGNATURE_SIZE,
+                   digest,
+                   32); // recompute digest for txhash
+    getTxHashFromDigest(digest, txHash);
+    LOG("withdrawFees tx has been sent!\n");
+    printReceipt(packet.transaction, txHash, nullptr);
+    LOG("run ./qubic-cli [...] -checktxontick %u %s\n", currentTick + scheduledTickOffset, txHash);
+    LOG("to check your tx confirmation status\n");
+}
+
 void getOrder(const char* nodeIp, int nodePort, uint64_t orderId)
 {
     auto qc = make_qc(nodeIp, nodePort);
     
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         RequestContractFunction rcf;
         vottunBridgeGetOrder_input input;
     } packet;
+    #pragma pack(pop)
+
     packet.header.setSize(sizeof(packet));
     packet.header.randomizeDejavu();
     packet.header.setType(RequestContractFunction::type());
@@ -576,11 +742,13 @@ void getTotalReceivedTokens(const char* nodeIp, int nodePort, uint64_t amount)
 {
     auto qc = make_qc(nodeIp, nodePort);
     
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         RequestContractFunction rcf;
         vottunBridgeGetTotalReceivedTokens_input input;
     } packet;
+    #pragma pack(pop)
     packet.header.setSize(sizeof(packet));
     packet.header.randomizeDejavu();
     packet.header.setType(RequestContractFunction::type());
@@ -609,11 +777,13 @@ void getAdminID(const char* nodeIp, int nodePort, uint8_t idInput)
 {
     auto qc = make_qc(nodeIp, nodePort);
     
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         RequestContractFunction rcf;
         vottunBridgeGetAdminID_input input;
     } packet;
+    #pragma pack(pop)
     packet.header.setSize(sizeof(packet));
     packet.header.randomizeDejavu();
     packet.header.setType(RequestContractFunction::type());
@@ -645,10 +815,12 @@ void getTotalLockedTokens(const char* nodeIp, int nodePort)
 {
     auto qc = make_qc(nodeIp, nodePort);
     
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         RequestContractFunction rcf;
     } packet;
+    #pragma pack(pop)
     packet.header.setSize(sizeof(packet));
     packet.header.randomizeDejavu();
     packet.header.setType(RequestContractFunction::type());
@@ -679,11 +851,13 @@ void getOrderByDetails(const char* nodeIp, int nodePort, const char* ethAddress,
     uint8_t publicKey[32] = {0};
     getPublicKeyFromIdentity(ethAddress, publicKey);
     
+    #pragma pack(push, 1)
     struct {
         RequestResponseHeader header;
         RequestContractFunction rcf;
         vottunBridgeGetOrderByDetails_input input;
     } packet;
+    #pragma pack(pop)
     packet.header.setSize(sizeof(packet));
     packet.header.randomizeDejavu();
     packet.header.setType(RequestContractFunction::type());
@@ -716,5 +890,116 @@ void getOrderByDetails(const char* nodeIp, int nodePort, const char* ethAddress,
     {
         printf("The order%llu exists", result.orderId);
     }
+
+    char qubicDestination[128] = {0};
+    getIdentityFromPublicKey(result.qubicDestination, qubicDestination, false);
+    printf("Qubic Destination: %s\n", qubicDestination);
+}
+
+void getContractInfo(const char* nodeIp, int nodePort)
+{
+    auto qc = make_qc(nodeIp, nodePort);
+
+    #pragma pack(push, 1)
+    struct {
+        RequestResponseHeader header;
+        RequestContractFunction rcf;
+        vottunBridgeGetContractInfo_input input;
+    } packet;
+    #pragma pack(pop)
+    packet.header.setSize(sizeof(packet));
+    packet.header.randomizeDejavu();
+    packet.header.setType(RequestContractFunction::type());
+    packet.rcf.inputSize = sizeof(vottunBridgeGetContractInfo_input);
+    packet.rcf.inputType = VOTTUNBRIDGE_TYPE_GET_CONTRACT_INFO;
+    packet.rcf.contractIndex = VOTTUNBRIDGE_CONTRACT_INDEX;
     
+    qc->sendData((uint8_t *) &packet, packet.header.size());
+
+    vottunBridgeGetContractInfo_output result;
+    try
+    {
+        result = qc->receivePacketWithHeaderAs<vottunBridgeGetContractInfo_output>();
+    }
+    catch (std::logic_error)
+    {
+        LOG("Failed to receive data\n");
+        return;
+    }
+
+    char admin[128] = {0};
+    getIdentityFromPublicKey(result.admin, admin, false);
+    printf("Admin: %s\n", admin);
+
+    for (int i = 0; i < 16; i++)
+    {
+        char manager[128] = {0};
+        getIdentityFromPublicKey(result.managers[i], manager, false);
+        printf("Manager %d: %s\n", i, manager);
+    }
+
+    printf("Next Order ID: %llu\n", result.nextOrderId);
+    printf("Locked Tokens: %llu\n", result.lockedTokens);
+    printf("Total Received Tokens: %llu\n", result.totalReceivedTokens);
+    printf("Earned Fees: %llu\n", result.earnedFees);
+    printf("Trade Fee Billionths: %u\n", result.tradeFeeBillionths);
+    printf("Source Chain: %u\n", result.sourceChain);
+
+    for (int i = 0; i < 16; i++)
+    {
+        printf("Order %d:\n", i);
+        char qubicSender[128] = {0};
+        getIdentityFromPublicKey(result.firstOrders[i].qubicSender, qubicSender, false);
+        printf("Qubic Sender: %s\n", qubicSender);
+
+        char qubicDestination[128] = {0};
+        getIdentityFromPublicKey(result.firstOrders[i].qubicDestination, qubicDestination, false);
+        printf("Qubic Destination: %s\n", qubicDestination);
+
+        char ethAddress[128] = {0};
+        printf("Eth Address: %s\n", ethAddress);
+
+        printf("Order ID: %llu\n", result.firstOrders[i].orderId);
+        printf("Amount: %llu\n", result.firstOrders[i].amount);
+        printf("Order Type: %u\n", result.firstOrders[i].orderType);
+        printf("Status: %u\n", result.firstOrders[i].status);
+        printf("From Qubic To Ethereum: %u\n", result.firstOrders[i].fromQubicToEthereum);
+        printf("Tokens Received: %u\n", result.firstOrders[i].tokensReceived);
+        printf("Tokens Locked: %u\n\n", result.firstOrders[i].tokensLocked);
+    }
+
+    printf("Total Orders Found: %llu\n", result.totalOrdersFound); 
+    printf("Empty Slots: %llu\n", result.emptySlots);
+}
+
+void getAvailableFees(const char* nodeIp, int nodePort)
+{
+    auto qc = make_qc(nodeIp, nodePort);
+
+    #pragma pack(push, 1)
+    struct {
+        RequestResponseHeader header;
+        RequestContractFunction rcf;
+        vottunBridgeGetAvailableFees_input input;
+    } packet;
+    #pragma pack(pop)
+    packet.header.setSize(sizeof(packet));
+    packet.header.randomizeDejavu();
+    packet.header.setType(RequestContractFunction::type());
+    packet.rcf.inputSize = sizeof(vottunBridgeGetAvailableFees_input);
+    packet.rcf.inputType = VOTTUNBRIDGE_TYPE_GET_AVAILABLE_FEES;
+    packet.rcf.contractIndex = VOTTUNBRIDGE_CONTRACT_INDEX;
+    
+    qc->sendData((uint8_t *) &packet, packet.header.size());
+
+    vottunBridgeGetAvailableFees_output result;
+    try
+    {
+        result = qc->receivePacketWithHeaderAs<vottunBridgeGetAvailableFees_output>();
+    }
+    catch (std::logic_error)
+    {
+        LOG("Failed to receive data\n");
+        return;
+    }
 }

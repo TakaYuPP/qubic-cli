@@ -1544,12 +1544,13 @@ void parseArgument(int argc, char** argv)
 
         if (strcmp(argv[i], "-vottuncreateorder") == 0)
         {
-            CHECK_NUMBER_OF_PARAMETERS(3)
+            CHECK_NUMBER_OF_PARAMETERS(4)
             g_cmd = VOTTUNBRIDGE_CREATE_ORDER;
-            g_vottun_Id = argv[i + 1];
+            g_vottun_qubicDestination = argv[i + 1];
             g_vottun_amount = charToNumber(argv[i + 2]);
-            g_vottun_flag = charToNumber(argv[i + 3]);
-            i += 4;
+            g_vottun_ethAddress = argv[i + 3];
+            g_vottun_flag = charToNumber(argv[i + 4]);
+            i += 5;
             CHECK_OVER_PARAMETERS
             return;
         }
@@ -1600,8 +1601,27 @@ void parseArgument(int argc, char** argv)
         }
         if (strcmp(argv[i], "-vottuntransfertocontract") == 0)
         {
-            CHECK_NUMBER_OF_PARAMETERS(1)
+            CHECK_NUMBER_OF_PARAMETERS(2)
             g_cmd = VOTTUNBRIDGE_TRANSFER_TO_CONTRACT;
+            g_vottun_amount = charToNumber(argv[i + 1]);
+            g_vottun_orderId = charToNumber(argv[i + 2]);
+            i += 3;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottunwithdrawfees") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_WITHDRAW_FEES;
+            g_vottun_amount = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottunaddliquidity") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = VOTTUNBRIDGE_ADD_LIQUIDITY;
             g_vottun_amount = charToNumber(argv[i + 1]);
             i += 2;
             CHECK_OVER_PARAMETERS
@@ -1650,6 +1670,22 @@ void parseArgument(int argc, char** argv)
             g_vottun_amount = charToNumber(argv[i + 2]);
             g_vottun_flag = charToNumber(argv[i + 3]);
             i += 4;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottungetcontractinfo") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(0)
+            g_cmd = VOTTUNBRIDGE_GET_CONTRACT_INFO;
+            i += 1;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-vottungetavailablefees") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(0)
+            g_cmd = VOTTUNBRIDGE_GET_AVAILABLE_FEES;
+            i += 1;
             CHECK_OVER_PARAMETERS
             return;
         }
