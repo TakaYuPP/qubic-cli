@@ -271,6 +271,16 @@ void print_help()
     printf("\t-msvaultgetvaultowners <VAULT_ID>\n");
     printf("\t\tGet MsVault owners given vault ID.\n");
 
+    printf("\n[QIP COMMANDS]\n");
+    printf("\t-qipgeticoinfo <ICO_INDEX>\n");
+    printf("\t\tGet information about a specific ICO by index.\n");
+    printf("\t-qipcreateico <ISSUER_ID> <ADDRESS1> <ADDRESS2> <ADDRESS3> <ADDRESS4> <ADDRESS5> <ADDRESS6> <ADDRESS7> <ADDRESS8> <ADDRESS9> <ADDRESS10> <ASSET_NAME> <PRICE1> <PRICE2> <PRICE3> <SALE_AMOUNT_PHASE1> <SALE_AMOUNT_PHASE2> <SALE_AMOUNT_PHASE3> <PERCENT1> <PERCENT2> <PERCENT3> <PERCENT4> <PERCENT5> <PERCENT6> <PERCENT7> <PERCENT8> <PERCENT9> <PERCENT10> <START_EPOCH>\n");
+    printf("\t\tCreate a new ICO. All 10 percentages must sum to 95. Valid private key and node ip/port are required.\n");
+    printf("\t-qipbuytoken <ICO_INDEX> <AMOUNT> <PHASE>\n");
+    printf("\t\tBuy tokens from an active ICO. <PHASE> is 1, 2, or 3 to specify which phase price to use. Valid private key and node ip/port are required.\n");
+    printf("\t-qiptransferrights <ASSET_NAME> <ISSUER_ID> <NEW_MANAGING_CONTRACT> <NUMBER_OF_SHARES>\n");
+    printf("\t\tTransfer share management rights from QIP contract to another contract. Valid private key and node ip/port are required.\n");
+
     printf("\n[TESTING COMMANDS]\n");
     printf("\t-testqpifunctionsoutput\n");
     printf("\t\tTest that output of qpi functions matches TickData and quorum tick votes for 15 ticks in the future (as specified by scheduletick offset). Requires the TESTEXA SC to be enabled.\n");
@@ -321,9 +331,11 @@ static uint32_t getContractIndex(const char* str)
         idx = 9;
     else if (strcasecmp(str, "QVAULT") == 0)
         idx = 10;
+    else if (strcasecmp(str, "QIP") == 0)
+        idx = 11;
     else
     {
-        constexpr uint32_t contractCount = 11;
+        constexpr uint32_t contractCount = 12;
         if (sscanf(str, "%u", &idx) != 1 || idx == 0 || idx >= contractCount)
         {
             LOG("Contract \"%s\" is unknown!\n", str);
@@ -1558,6 +1570,84 @@ void parseArgument(int argc, char** argv)
             i += 5;
             CHECK_OVER_PARAMETERS
             return;
+        }
+
+        /**************************
+         ***** QIP COMMANDS *****
+         **************************/
+
+        if (strcmp(argv[i], "-qipgeticoinfo") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QIP_GET_ICO_INFO;
+            g_qip_ico_index = uint32_t(charToNumber(argv[i + 1]));
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qipcreateico") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(28)
+            g_cmd = QIP_CREATE_ICO;
+            g_qip_issuer = argv[i + 1];
+            g_qip_address1 = argv[i + 2];
+            g_qip_address2 = argv[i + 3];
+            g_qip_address3 = argv[i + 4];
+            g_qip_address4 = argv[i + 5];
+            g_qip_address5 = argv[i + 6];
+            g_qip_address6 = argv[i + 7];
+            g_qip_address7 = argv[i + 8];
+            g_qip_address8 = argv[i + 9];
+            g_qip_address9 = argv[i + 10];
+            g_qip_address10 = argv[i + 11];
+            g_qip_asset_name = argv[i + 12];
+            g_qip_price1 = charToUnsignedNumber(argv[i + 13]);
+            g_qip_price2 = charToUnsignedNumber(argv[i + 14]);
+            g_qip_price3 = charToUnsignedNumber(argv[i + 15]);
+            g_qip_sale_amount_phase1 = charToUnsignedNumber(argv[i + 16]);
+            g_qip_sale_amount_phase2 = charToUnsignedNumber(argv[i + 17]);
+            g_qip_sale_amount_phase3 = charToUnsignedNumber(argv[i + 18]);
+            g_qip_percent1 = uint32_t(charToNumber(argv[i + 19]));
+            g_qip_percent2 = uint32_t(charToNumber(argv[i + 20]));
+            g_qip_percent3 = uint32_t(charToNumber(argv[i + 21]));
+            g_qip_percent4 = uint32_t(charToNumber(argv[i + 22]));
+            g_qip_percent5 = uint32_t(charToNumber(argv[i + 23]));
+            g_qip_percent6 = uint32_t(charToNumber(argv[i + 24]));
+            g_qip_percent7 = uint32_t(charToNumber(argv[i + 25]));
+            g_qip_percent8 = uint32_t(charToNumber(argv[i + 26]));
+            g_qip_percent9 = uint32_t(charToNumber(argv[i + 27]));
+            g_qip_percent10 = uint32_t(charToNumber(argv[i + 28]));
+            g_qip_start_epoch = uint32_t(charToNumber(argv[i + 29]));
+            i += 30;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qipbuytoken") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QIP_BUY_TOKEN;
+            g_qip_ico_index = uint32_t(charToNumber(argv[i + 1]));
+            g_qip_buy_token_amount = charToUnsignedNumber(argv[i + 2]);
+            g_qip_buy_token_phase = uint32_t(charToNumber(argv[i + 3]));
+            if (g_qip_buy_token_phase < 1 || g_qip_buy_token_phase > 3) {
+                printf("Error: PHASE must be 1, 2, or 3 for -qipbuytoken, but got %u\n", g_qip_buy_token_phase);
+                exit(1);
+            }
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qiptransferrights") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(4)
+            g_cmd = QIP_TRANSFER_SHARE_MANAGEMENT_RIGHTS;
+            g_qip_transfer_asset_name = argv[i + 1];
+            g_qip_transfer_issuer = argv[i + 2];
+            g_qip_transfer_new_contract_index = getContractIndex(argv[i + 3]);
+            g_qip_transfer_number_of_shares = charToUnsignedNumber(argv[i + 4]);
+            i += 5;
+            CHECK_OVER_PARAMETERS
+            break;
         }
 
         i++;

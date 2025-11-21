@@ -17,6 +17,7 @@
 #include "qvault.h"
 #include "msvault.h"
 #include "testUtils.h"
+#include "qip.h"
 
 int run(int argc, char* argv[])
 {
@@ -633,6 +634,60 @@ int run(int argc, char* argv[])
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
             testBidInIpoThroughContract(g_nodeIp, g_nodePort, g_seed, g_paramString1, g_ipo_contract_index, g_make_ipo_bid_price_per_share, g_make_ipo_bid_number_of_share, g_offsetScheduledTick);
+            break;
+        }
+        case QIP_GET_ICO_INFO:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            qipGetICOInfo(g_nodeIp, g_nodePort, g_qip_ico_index);
+            break;
+        }
+        case QIP_CREATE_ICO:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckIdentity(g_qip_issuer);
+            sanityCheckIdentity(g_qip_address1);
+            sanityCheckIdentity(g_qip_address2);
+            sanityCheckIdentity(g_qip_address3);
+            sanityCheckIdentity(g_qip_address4);
+            sanityCheckIdentity(g_qip_address5);
+            sanityCheckIdentity(g_qip_address6);
+            sanityCheckIdentity(g_qip_address7);
+            sanityCheckIdentity(g_qip_address8);
+            sanityCheckIdentity(g_qip_address9);
+            sanityCheckIdentity(g_qip_address10);
+            sanityCheckValidAssetName(g_qip_asset_name);
+            qipCreateICO(g_nodeIp, g_nodePort, g_seed,
+                        g_qip_issuer, g_qip_address1, g_qip_address2, g_qip_address3,
+                        g_qip_address4, g_qip_address5, g_qip_address6, g_qip_address7,
+                        g_qip_address8, g_qip_address9, g_qip_address10,
+                        g_qip_asset_name,
+                        g_qip_price1, g_qip_price2, g_qip_price3,
+                        g_qip_sale_amount_phase1, g_qip_sale_amount_phase2, g_qip_sale_amount_phase3,
+                        g_qip_percent1, g_qip_percent2, g_qip_percent3, g_qip_percent4, g_qip_percent5,
+                        g_qip_percent6, g_qip_percent7, g_qip_percent8, g_qip_percent9, g_qip_percent10,
+                        g_qip_start_epoch,
+                        g_offsetScheduledTick);
+            break;
+        }
+        case QIP_BUY_TOKEN:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            qipBuyToken(g_nodeIp, g_nodePort, g_seed, g_qip_ico_index, g_qip_buy_token_amount, g_qip_buy_token_phase, g_offsetScheduledTick);
+            break;
+        }
+        case QIP_TRANSFER_SHARE_MANAGEMENT_RIGHTS:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckValidAssetName(g_qip_transfer_asset_name);
+            sanityCheckIdentity(g_qip_transfer_issuer);
+            qipTransferShareManagementRights(g_nodeIp, g_nodePort, g_seed,
+                                            g_qip_transfer_asset_name, g_qip_transfer_issuer,
+                                            g_qip_transfer_new_contract_index, g_qip_transfer_number_of_shares,
+                                            g_offsetScheduledTick);
             break;
         }
         default:
