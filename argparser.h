@@ -1587,7 +1587,7 @@ void parseArgument(int argc, char** argv)
         }
         if (strcmp(argv[i], "-qipcreateico") == 0)
         {
-            CHECK_NUMBER_OF_PARAMETERS(28)
+            CHECK_NUMBER_OF_PARAMETERS(29)
             g_cmd = QIP_CREATE_ICO;
             g_qip_issuer = argv[i + 1];
             g_qip_address1 = argv[i + 2];
