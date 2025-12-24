@@ -139,9 +139,9 @@ void qipCreateICO(const char* nodeIp, int nodePort, const char* seed,
     memcpy(input.address8, address8Pubkey, 32);
     memcpy(input.address9, address9Pubkey, 32);
     memcpy(input.address10, address10Pubkey, 32);
-    
-    input.assetName = 0;
-    memcpy(&input.assetName, assetName, strlen(assetName));
+    char assetNameS1[8] = {0};
+    memcpy(assetNameS1, assetName, strlen(assetName));
+    memcpy(&input.assetName, assetNameS1, 8);
     input.price1 = price1;
     input.price2 = price2;
     input.price3 = price3;
