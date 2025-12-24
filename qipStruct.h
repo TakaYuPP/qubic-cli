@@ -4,7 +4,7 @@
 
 // QIP Contract Index (to be determined based on deployment)
 // For now, we'll use a placeholder that can be configured
-#define QIP_CONTRACT_INDEX 11  // Update this based on actual contract deployment
+#define QIP_CONTRACT_INDEX 18  // Update this based on actual contract deployment
 
 // QIP Function IDs (matching contract registration)
 #define QIP_GET_ICO_INFO_FUNC 1
