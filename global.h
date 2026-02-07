@@ -106,6 +106,23 @@ char* g_qutil_getPollsCreatorAddress = nullptr;
 uint64_t g_qutil_getPollInfoPollId = 0;
 uint64_t g_qutil_cancelPollId = 0;
 
+// qusino
+char* g_qusino_identity = nullptr;
+uint32_t g_qusino_offset = 0;
+uint64_t g_qusino_amount = 0;
+uint8_t g_qusino_useQSC = 0;           // 0 = Qubic, 1 = QSC for buyQST
+uint8_t g_qusino_transferSTAR = 1;    // 1 = STAR, 0 = QSC for transfer
+uint32_t g_qusino_stakingType = 0;    // 1-4 (1m, 3m, 6m, 12m)
+uint32_t g_qusino_typeOfAsset = 0;    // 1=STAR, 2=QSC, 3=QST
+char* g_qusino_uriHex = nullptr;      // 128 hex chars = 64 bytes for game URI
+uint64_t g_qusino_gameIndex = 0;
+uint8_t g_qusino_yesNo = 1;           // 1=yes, 0=no for vote
+char* g_qusino_destIdentity = nullptr;
+char* g_qusino_issuerIdentity = nullptr;
+char* g_qusino_assetName = nullptr;
+int64_t g_qusino_numberOfShares = 0;
+uint32_t g_qusino_newManagingContractIndex = 0;
+
 // qearn
 uint64_t g_qearn_lockAmount = 0;
 uint64_t g_qearn_unlockAmount = 0;

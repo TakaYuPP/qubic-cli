@@ -92,6 +92,36 @@ void print_help()
     printf("\t-qutilgetfee\n");
     printf("\t\tShow current QUTIL fees.\n");
 
+    printf("\n[QUSINO COMMANDS]\n");
+    printf("\t-qusinogetuserassetvolume <IDENTITY>\n");
+    printf("\t\tGet STAR and QSC balance for an identity in Qusino contract.\n");
+    printf("\t-qusinogetuserstakinginfo <IDENTITY> [OFFSET]\n");
+    printf("\t\tGet staking entries for an identity (offset default 0).\n");
+    printf("\t-qusinogetfailedgamelist [OFFSET]\n");
+    printf("\t\tGet list of failed game proposals (offset default 0).\n");
+    printf("\t-qusinogetscinfo\n");
+    printf("\t\tGet Qusino smart contract global info.\n");
+    printf("\t-qusinogetactivegamelist [OFFSET]\n");
+    printf("\t\tGet list of active games (offset default 0).\n");
+    printf("\t-qusinobuyqst <AMOUNT> <0|1>\n");
+    printf("\t\tBuy QST: 0 = pay with Qubic, 1 = pay with QSC. Seed and node required.\n");
+    printf("\t-qusinoearnstar <AMOUNT>\n");
+    printf("\t\tEarn STAR by paying QU (amount * 1000). Seed and node required.\n");
+    printf("\t-qusinoearnqsc <AMOUNT>\n");
+    printf("\t\tEarn QSC by transferring QST to contract (receives QST + STAR bonus). Seed and node required.\n");
+    printf("\t-qusinotransferstarorqsc <DEST_IDENTITY> <AMOUNT> <0|1>\n");
+    printf("\t\tTransfer: 0 = QSC, 1 = STAR. Seed and node required.\n");
+    printf("\t-qusinostakeassets <AMOUNT> <STAKING_TYPE> <ASSET_TYPE>\n");
+    printf("\t\tStake: STAKING_TYPE 1=1m, 2=3m, 3=6m, 4=12m; ASSET_TYPE 1=STAR, 2=QSC, 3=QST. Seed and node required.\n");
+    printf("\t-qusinosubmitgame <URI_HEX>\n");
+    printf("\t\tSubmit a game proposal. URI_HEX = 128 hex chars (64 bytes). Fee 100000000. Seed and node required.\n");
+    printf("\t-qusinovoteingameproposal <URI_HEX> <GAME_INDEX> <0|1>\n");
+    printf("\t\tVote: 0 = no, 1 = yes. URI must match game. Seed and node required.\n");
+    printf("\t-qusinodepositqstforsale <AMOUNT>\n");
+    printf("\t\tDeposit QST for sale. Seed and node required.\n");
+    printf("\t-qusinotransfersharemanagementrights <ISSUER_ID> <ASSET_NAME> <NUMBER_OF_SHARES> <NEW_CONTRACT_INDEX>\n");
+    printf("\t\tTransfer share management rights to another contract. Seed and node required.\n");
+
     printf("\n[BLOCKCHAIN/PROTOCOL COMMANDS]\n");
     printf("\t-gettickdata <TICK_NUMBER> <OUTPUT_FILE_NAME>\n");
     printf("\t\tGet tick data and write it to a file. Use -readtickdata to examine the file. valid node ip/port are required.\n");
@@ -1636,7 +1666,144 @@ void parseArgument(int argc, char** argv)
             i += 1;
             CHECK_OVER_PARAMETERS
             break;
-        }        
+        }
+
+        /****************************
+         ***** QUSINO COMMANDS ******
+         ****************************/
+        if (strcmp(argv[i], "-qusinogetuserassetvolume") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QUSINO_GET_USER_ASSET_VOLUME;
+            g_qusino_identity = argv[i + 1];
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinogetuserstakinginfo") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QUSINO_GET_USER_STAKING_INFO;
+            g_qusino_identity = argv[i + 1];
+            g_qusino_offset = (i + 2 < argc && argv[i + 2][0] != '-') ? (uint32_t)charToUnsignedNumber(argv[i + 2]) : 0;
+            if (i + 2 < argc && argv[i + 2][0] != '-') i += 3; else i += 2;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinogetfailedgamelist") == 0)
+        {
+            g_cmd = QUSINO_GET_FAILED_GAME_LIST;
+            g_qusino_offset = (i + 1 < argc && argv[i + 1][0] != '-') ? (uint32_t)charToUnsignedNumber(argv[i + 1]) : 0;
+            if (i + 1 < argc && argv[i + 1][0] != '-') i += 2; else i += 1;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinogetscinfo") == 0)
+        {
+            g_cmd = QUSINO_GET_SC_INFO;
+            i += 1;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinogetactivegamelist") == 0)
+        {
+            g_cmd = QUSINO_GET_ACTIVE_GAME_LIST;
+            g_qusino_offset = (i + 1 < argc && argv[i + 1][0] != '-') ? (uint32_t)charToUnsignedNumber(argv[i + 1]) : 0;
+            if (i + 1 < argc && argv[i + 1][0] != '-') i += 2; else i += 1;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinobuyqst") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QUSINO_BUY_QST;
+            g_qusino_amount = charToUnsignedNumber(argv[i + 1]);
+            g_qusino_useQSC = (uint8_t)charToUnsignedNumber(argv[i + 2]);
+            i += 3;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinoearnstar") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QUSINO_EARN_STAR;
+            g_qusino_amount = charToUnsignedNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinoearnqsc") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QUSINO_EARN_QSC;
+            g_qusino_amount = charToUnsignedNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinotransferstarorqsc") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QUSINO_TRANSFER_STAR_OR_QSC;
+            g_qusino_destIdentity = argv[i + 1];
+            g_qusino_amount = charToUnsignedNumber(argv[i + 2]);
+            g_qusino_transferSTAR = (uint8_t)charToUnsignedNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinostakeassets") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QUSINO_STAKE_ASSETS;
+            g_qusino_amount = charToUnsignedNumber(argv[i + 1]);
+            g_qusino_stakingType = (uint32_t)charToUnsignedNumber(argv[i + 2]);
+            g_qusino_typeOfAsset = (uint32_t)charToUnsignedNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinosubmitgame") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QUSINO_SUBMIT_GAME;
+            g_qusino_uriHex = argv[i + 1];
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinovoteingameproposal") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QUSINO_VOTE_IN_GAME_PROPOSAL;
+            g_qusino_uriHex = argv[i + 1];
+            g_qusino_gameIndex = charToUnsignedNumber(argv[i + 2]);
+            g_qusino_yesNo = (uint8_t)charToUnsignedNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinodepositqstforsale") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QUSINO_DEPOSIT_QST_FOR_SALE;
+            g_qusino_amount = charToUnsignedNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
+        if (strcmp(argv[i], "-qusinotransfersharemanagementrights") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(4)
+            g_cmd = QUSINO_TRANSFER_SHARE_MANAGEMENT_RIGHTS;
+            g_qusino_issuerIdentity = argv[i + 1];
+            g_qusino_assetName = argv[i + 2];
+            g_qusino_numberOfShares = charToNumber(argv[i + 3]);
+            g_qusino_newManagingContractIndex = (uint32_t)charToUnsignedNumber(argv[i + 4]);
+            i += 5;
+            CHECK_OVER_PARAMETERS
+            break;
+        }
 
         /****************************
          ***** GQMPROP COMMANDS *****

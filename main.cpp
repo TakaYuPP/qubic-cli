@@ -21,6 +21,7 @@
 #include "test_utils.h"
 #include "nostromo.h"
 #include "qbond.h"
+#include "qusino.h"
 
 int run(int argc, char* argv[])
 {
@@ -462,6 +463,98 @@ int run(int argc, char* argv[])
         case QUTIL_PRINT_FEE:
             sanityCheckNode(g_nodeIp, g_nodePort);
             qutilPrintFees(g_nodeIp, g_nodePort);
+            break;
+        case QUSINO_GET_USER_ASSET_VOLUME:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckIdentity(g_qusino_identity);
+            qusinoGetUserAssetVolume(g_nodeIp, g_nodePort, g_qusino_identity);
+            break;
+        case QUSINO_GET_USER_STAKING_INFO:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckIdentity(g_qusino_identity);
+            qusinoGetUserStakingInfo(g_nodeIp, g_nodePort, g_qusino_identity, g_qusino_offset);
+            break;
+        case QUSINO_GET_FAILED_GAME_LIST:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            qusinoGetFailedGameList(g_nodeIp, g_nodePort, g_qusino_offset);
+            break;
+        case QUSINO_GET_SC_INFO:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            qusinoGetSCInfo(g_nodeIp, g_nodePort);
+            break;
+        case QUSINO_GET_ACTIVE_GAME_LIST:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            qusinoGetActiveGameList(g_nodeIp, g_nodePort, g_qusino_offset);
+            break;
+        case QUSINO_BUY_QST:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckTxAmount(g_qusino_amount);
+            qusinoBuyQST(g_nodeIp, g_nodePort, g_seed, g_qusino_amount, g_qusino_useQSC != 0, g_offsetScheduledTick);
+            break;
+        case QUSINO_EARN_STAR:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckTxAmount(g_qusino_amount);
+            qusinoEarnSTAR(g_nodeIp, g_nodePort, g_seed, g_qusino_amount, g_offsetScheduledTick);
+            break;
+        case QUSINO_EARN_QSC:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckTxAmount(g_qusino_amount);
+            qusinoEarnQSC(g_nodeIp, g_nodePort, g_seed, g_qusino_amount, g_offsetScheduledTick);
+            break;
+        case QUSINO_TRANSFER_STAR_OR_QSC:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckIdentity(g_qusino_destIdentity);
+            sanityCheckTxAmount(g_qusino_amount);
+            qusinoTransferSTAROrQSC(g_nodeIp, g_nodePort, g_seed, g_qusino_destIdentity, g_qusino_amount, g_qusino_transferSTAR != 0, g_offsetScheduledTick);
+            break;
+        case QUSINO_STAKE_ASSETS:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckTxAmount(g_qusino_amount);
+            qusinoStakeAssets(g_nodeIp, g_nodePort, g_seed, g_qusino_amount, g_qusino_stakingType, g_qusino_typeOfAsset, g_offsetScheduledTick);
+            break;
+        case QUSINO_SUBMIT_GAME:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            {
+                uint8_t uri64[64];
+                if (!g_qusino_uriHex || !qusinoParseUriHex(g_qusino_uriHex, uri64))
+                {
+                    LOG("ERROR: SubmitGame requires URI_HEX: 128 hex characters (64 bytes).\n");
+                    break;
+                }
+                qusinoSubmitGame(g_nodeIp, g_nodePort, g_seed, uri64, g_offsetScheduledTick);
+            }
+            break;
+        case QUSINO_VOTE_IN_GAME_PROPOSAL:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            {
+                uint8_t uri64[64];
+                if (!g_qusino_uriHex || !qusinoParseUriHex(g_qusino_uriHex, uri64))
+                {
+                    LOG("ERROR: VoteInGameProposal requires URI_HEX: 128 hex characters (64 bytes).\n");
+                    break;
+                }
+                qusinoVoteInGameProposal(g_nodeIp, g_nodePort, g_seed, uri64, g_qusino_gameIndex, g_qusino_yesNo != 0, g_offsetScheduledTick);
+            }
+            break;
+        case QUSINO_DEPOSIT_QST_FOR_SALE:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckTxAmount(g_qusino_amount);
+            qusinoDepositQSTForSale(g_nodeIp, g_nodePort, g_seed, g_qusino_amount, g_offsetScheduledTick);
+            break;
+        case QUSINO_TRANSFER_SHARE_MANAGEMENT_RIGHTS:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            sanityCheckIdentity(g_qusino_issuerIdentity);
+            sanityCheckValidAssetName(g_qusino_assetName);
+            qusinoTransferShareManagementRights(g_nodeIp, g_nodePort, g_seed, g_qusino_issuerIdentity, g_qusino_assetName, g_qusino_numberOfShares, g_qusino_newManagingContractIndex, g_offsetScheduledTick);
             break;
         case GQMPROP_SET_PROPOSAL:
             sanityCheckNode(g_nodeIp, g_nodePort);
