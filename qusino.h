@@ -5,7 +5,7 @@
 #include "asset_utils.h"
 
 // Qusino contract index (adjust if deployed at a different index)
-constexpr unsigned int QUSINO_CONTRACT_INDEX = 20;
+constexpr unsigned int QUSINO_CONTRACT_INDEX = 24;
 
 // Function IDs (match REGISTER_USER_FUNCTION order in contract)
 constexpr uint16_t QUSINO_FUNC_GET_USER_ASSET_VOLUME = 1;
