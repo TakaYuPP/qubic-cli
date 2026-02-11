@@ -152,7 +152,7 @@ void qusinoBuyQST(const char* nodeIp, int nodePort, const char* seed, uint64_t a
     input.amount = amount;
     input.type = useQSC ? 1 : 0;
     // For Qubic (type 0), contract uses invocationReward(); send at least amount*minPrice (use 1000 as safe estimate; contract refunds excess).
-    uint64_t fee = useQSC ? 0 : (amount * 1000ULL);
+    uint64_t fee = useQSC ? 0 : (amount * 777ULL);
     makeContractTransaction(nodeIp, nodePort, seed, QUSINO_CONTRACT_INDEX,
         QUSINO_PROC_BUY_QST, fee, sizeof(input), &input, scheduledTickOffset);
     LOG("BuyQST transaction sent (type=%s).\n", useQSC ? "QSC" : "Qubic");
