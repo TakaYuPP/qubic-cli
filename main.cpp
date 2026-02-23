@@ -509,13 +509,18 @@ int run(int argc, char* argv[])
             sanityCheckSeed(g_seed);
             sanityCheckIdentity(g_qusino_destIdentity);
             sanityCheckTxAmount(g_qusino_amount);
-            qusinoTransferSTAROrQSC(g_nodeIp, g_nodePort, g_seed, g_qusino_destIdentity, g_qusino_amount, g_qusino_transferSTAR != 0, g_offsetScheduledTick);
+            if (g_qusino_transferSTAR != 1 && g_qusino_transferSTAR != 2)
+            {
+                LOG("ERROR: Transfer type must be 1 (QSC) or 2 (STAR).\n");
+                break;
+            }
+            qusinoTransferSTAROrQSC(g_nodeIp, g_nodePort, g_seed, g_qusino_destIdentity, g_qusino_amount, g_qusino_transferSTAR == 2, g_offsetScheduledTick);
             break;
         case QUSINO_STAKE_ASSETS:
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
             sanityCheckTxAmount(g_qusino_amount);
-            qusinoStakeAssets(g_nodeIp, g_nodePort, g_seed, g_qusino_amount, g_qusino_stakingType, g_qusino_typeOfAsset, g_offsetScheduledTick);
+            qusinoStakeAssets(g_nodeIp, g_nodePort, g_seed, g_qusino_amount, g_qusino_stakingType, g_qusino_typeOfAsset, g_offsetScheduledTick);  // duration 1-4, asset 1=QSC 2=STAR 3=QST
             break;
         case QUSINO_SUBMIT_GAME:
             sanityCheckNode(g_nodeIp, g_nodePort);

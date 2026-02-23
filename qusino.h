@@ -28,6 +28,17 @@ constexpr uint16_t QUSINO_PROC_TRANSFER_SHARE_MANAGEMENT_RIGHTS = 9;
 // Fee constants from contract
 constexpr uint64_t QUSINO_GAME_SUBMIT_FEE = 100000000ULL;
 
+// Asset type constants (match contract)
+constexpr uint8_t QUSINO_ASSET_TYPE_QUBIC = 0;
+constexpr uint8_t QUSINO_ASSET_TYPE_QSC = 1;
+constexpr uint8_t QUSINO_ASSET_TYPE_STAR = 2;
+constexpr uint8_t QUSINO_ASSET_TYPE_QST = 3;
+// Duration constants for staking (match contract)
+constexpr uint8_t QUSINO_DURATION_1_MONTH = 1;
+constexpr uint8_t QUSINO_DURATION_3_MONTHS = 2;
+constexpr uint8_t QUSINO_DURATION_6_MONTHS = 3;
+constexpr uint8_t QUSINO_DURATION_12_MONTHS = 4;
+
 // --- Contract I/O structs (layout must match Qusino smart contract) ---
 
 struct Qusino_getUserAssetVolume_input
@@ -108,11 +119,11 @@ struct Qusino_getActiveGameList_output
     uint64_t gameIndexes[32];
 };
 
-// Procedure input structs
+// Procedure input structs (match contract: uint8 type fields)
 struct Qusino_buyQST_input
 {
     uint64_t amount;
-    uint8_t type;  // 0 - Qubic, 1 - QSC
+    uint8_t type;  // QUSINO_ASSET_TYPE_QUBIC (0) or QUSINO_ASSET_TYPE_QSC (1)
     uint8_t _padding[7];
 };
 
@@ -130,15 +141,15 @@ struct Qusino_transferSTAROrQSC_input
 {
     uint8_t dest[32];
     uint64_t amount;
-    uint8_t type;  // STAR or QSC
+    uint8_t type;  // QUSINO_ASSET_TYPE_STAR (2) or QUSINO_ASSET_TYPE_QSC (1)
     uint8_t _padding[7];
 };
 
 struct Qusino_stakeAssets_input
 {
     uint64_t amount;
-    uint32_t type;         // 1 - 1 month, 2 - 3 months, 3 - 6 months, 4 - 12 months
-    uint32_t typeOfAsset;  // 1 - STAR, 2 - QSC, 3 - QST
+    uint8_t typeOfAsset;  // QUSINO_ASSET_TYPE_QSC (1), STAR (2), QST (3)
+    uint8_t type;         // QUSINO_DURATION_1_MONTH (1), 3_MONTHS (2), 6_MONTHS (3), 12_MONTHS (4)
 };
 
 struct Qusino_submitGame_input

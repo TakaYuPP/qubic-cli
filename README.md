@@ -76,6 +76,36 @@ Commands:
 	-qutilgetfee
 		Show current QUTIL fees.
 
+[QUSINO COMMANDS]
+	-qusinogetuserassetvolume <IDENTITY>
+		Get STAR and QSC balance for an identity in Qusino contract.
+	-qusinogetuserstakinginfo <IDENTITY> [OFFSET]
+		Get staking entries for an identity (offset default 0).
+	-qusinogetfailedgamelist [OFFSET]
+		Get list of failed game proposals (offset default 0).
+	-qusinogetscinfo
+		Get Qusino smart contract global info.
+	-qusinogetactivegamelist [OFFSET]
+		Get list of active games (offset default 0).
+	-qusinobuyqst <AMOUNT> <0|1>
+		Buy QST: 0 = Qubic (QU), 1 = QSC. Seed and node required.
+	-qusinoearnstar <AMOUNT>
+		Earn STAR by paying QU (amount * 1000). Seed and node required.
+	-qusinoearnqsc <AMOUNT>
+		Earn QSC by transferring QST to contract (receives QST + STAR bonus). Seed and node required.
+	-qusinotransferstarorqsc <DEST_IDENTITY> <AMOUNT> <1|2>
+		Transfer: 1 = QSC, 2 = STAR. Seed and node required.
+	-qusinostakeassets <AMOUNT> <DURATION> <ASSET_TYPE>
+		Stake: DURATION 1=1m, 2=3m, 3=6m, 4=12m; ASSET_TYPE 1=QSC, 2=STAR, 3=QST. Seed and node required.
+	-qusinosubmitgame <URI_HEX>
+		Submit a game proposal. URI_HEX = 128 hex chars (64 bytes). Fee 100000000. Seed and node required.
+	-qusinovoteingameproposal <URI_HEX> <GAME_INDEX> <0|1>
+		Vote: 0 = no, 1 = yes. URI must match game. Seed and node required.
+	-qusinodepositqstforsale <AMOUNT>
+		Deposit QST for sale. Seed and node required.
+	-qusinotransfersharemanagementrights <ISSUER_ID> <ASSET_NAME> <NUMBER_OF_SHARES> <NEW_CONTRACT_INDEX>
+		Transfer share management rights to another contract. Seed and node required.
+
 [BLOCKCHAIN/PROTOCOL COMMANDS]
 	-gettickdata <TICK_NUMBER> <OUTPUT_FILE_NAME>
 		Get tick data and write it to a file. Use -readtickdata to examine the file. valid node ip/port are required.

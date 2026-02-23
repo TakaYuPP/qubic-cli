@@ -150,7 +150,7 @@ void qusinoBuyQST(const char* nodeIp, int nodePort, const char* seed, uint64_t a
     Qusino_buyQST_input input;
     memset(&input, 0, sizeof(input));
     input.amount = amount;
-    input.type = useQSC ? 1 : 0;
+    input.type = useQSC ? QUSINO_ASSET_TYPE_QSC : QUSINO_ASSET_TYPE_QUBIC;
     // For Qubic (type 0), contract uses invocationReward(); send at least amount*minPrice (use 1000 as safe estimate; contract refunds excess).
     uint64_t fee = useQSC ? 0 : (amount * 777ULL);
     makeContractTransaction(nodeIp, nodePort, seed, QUSINO_CONTRACT_INDEX,
@@ -184,28 +184,29 @@ void qusinoTransferSTAROrQSC(const char* nodeIp, int nodePort, const char* seed,
     sanityCheckIdentity(destIdentity);
     getPublicKeyFromIdentity(destIdentity, input.dest);
     input.amount = amount;
-    input.type = transferSTAR ? 1 : 0;
+    input.type = transferSTAR ? QUSINO_ASSET_TYPE_STAR : QUSINO_ASSET_TYPE_QSC;
     makeContractTransaction(nodeIp, nodePort, seed, QUSINO_CONTRACT_INDEX,
         QUSINO_PROC_TRANSFER_STAR_OR_QSC, 0, sizeof(input), &input, scheduledTickOffset);
     LOG("Transfer %s transaction sent.\n", transferSTAR ? "STAR" : "QSC");
 }
 
-void qusinoStakeAssets(const char* nodeIp, int nodePort, const char* seed, uint64_t amount, uint32_t stakingType, uint32_t typeOfAsset, uint32_t scheduledTickOffset)
+void qusinoStakeAssets(const char* nodeIp, int nodePort, const char* seed, uint64_t amount, uint32_t durationType, uint32_t typeOfAsset, uint32_t scheduledTickOffset)
 {
-    if (stakingType < 1 || stakingType > 4)
+    if (durationType < QUSINO_DURATION_1_MONTH || durationType > QUSINO_DURATION_12_MONTHS)
     {
-        LOG("ERROR: stakingType must be 1 (1m), 2 (3m), 3 (6m), or 4 (12m).\n");
+        LOG("ERROR: duration must be 1 (1m), 2 (3m), 3 (6m), or 4 (12m).\n");
         return;
     }
-    if (typeOfAsset < 1 || typeOfAsset > 3)
+    if (typeOfAsset != QUSINO_ASSET_TYPE_QSC && typeOfAsset != QUSINO_ASSET_TYPE_STAR && typeOfAsset != QUSINO_ASSET_TYPE_QST)
     {
-        LOG("ERROR: typeOfAsset must be 1 (STAR), 2 (QSC), or 3 (QST).\n");
+        LOG("ERROR: typeOfAsset must be 1 (QSC), 2 (STAR), or 3 (QST).\n");
         return;
     }
     Qusino_stakeAssets_input input;
+    memset(&input, 0, sizeof(input));
     input.amount = amount;
-    input.type = stakingType;
-    input.typeOfAsset = typeOfAsset;
+    input.typeOfAsset = (uint8_t)typeOfAsset;
+    input.type = (uint8_t)durationType;
     makeContractTransaction(nodeIp, nodePort, seed, QUSINO_CONTRACT_INDEX,
         QUSINO_PROC_STAKE_ASSETS, 0, sizeof(input), &input, scheduledTickOffset);
     LOG("StakeAssets transaction sent.\n");
